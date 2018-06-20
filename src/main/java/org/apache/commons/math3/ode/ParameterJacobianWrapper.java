@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.collections4.map.HashedMap;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
@@ -51,7 +52,7 @@ class ParameterJacobianWrapper implements ParameterJacobianProvider {
                                     final ParameterConfiguration[] paramsAndSteps) {
         this.fode = fode;
         this.pode = pode;
-        this.hParam = new HashMap<String, Double>();
+        this.hParam = new HashedMap<String, Double>();
 
         // set up parameters for jacobian computation
         for (final ParameterConfiguration param : paramsAndSteps) {

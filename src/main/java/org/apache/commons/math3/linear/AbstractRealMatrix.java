@@ -19,6 +19,7 @@ package org.apache.commons.math3.linear;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.exception.NotPositiveException;
@@ -191,7 +192,7 @@ public abstract class AbstractRealMatrix
          */
 
         final char[] binaryRepresentation = Integer.toBinaryString(power).toCharArray();
-        final ArrayList<Integer> nonZeroPositions = new ArrayList<Integer>();
+        final NodeCachingLinkedList<Integer> nonZeroPositions = new NodeCachingLinkedList<Integer>();
         int maxI = -1;
 
         for (int i = 0; i < binaryRepresentation.length; ++i) {

@@ -19,6 +19,7 @@ package org.apache.commons.math3.geometry.euclidean.twod;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 import org.apache.commons.math3.geometry.Point;
 import org.apache.commons.math3.geometry.euclidean.oned.Euclidean1D;
@@ -705,7 +706,7 @@ public class PolygonsSet extends AbstractRegion<Euclidean2D, Euclidean1D> {
                 }
 
                 // create the segment loops
-                final ArrayList<List<Segment>> loops = new ArrayList<List<Segment>>();
+                final NodeCachingLinkedList<List<Segment>> loops = new NodeCachingLinkedList<List<Segment>>();
                 for (ConnectableSegment s = getUnprocessed(segments); s != null; s = getUnprocessed(segments)) {
                     final List<Segment> loop = followLoop(s);
                     if (loop != null) {

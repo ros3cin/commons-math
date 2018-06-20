@@ -27,6 +27,8 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.text.MessageFormat;
 import java.util.Locale;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
 
 /**
  * Class that contains the actual implementation of the functionality mandated
@@ -62,9 +64,9 @@ public class ExceptionContext implements Serializable {
      */
     public ExceptionContext(final Throwable throwable) {
         this.throwable = throwable;
-        msgPatterns    = new ArrayList<Localizable>();
-        msgArguments   = new ArrayList<Object[]>();
-        context        = new HashMap<String, Object>();
+        msgPatterns    = new FastList<Localizable>();
+        msgArguments   = new FastList<Object[]>();
+        context        = new HashedMap<String, Object>();
     }
 
     /** Get a reference to the exception to which the context relates.
@@ -256,8 +258,8 @@ public class ExceptionContext implements Serializable {
                ClassNotFoundException {
         // Step 1.
         final int len = in.readInt();
-        msgPatterns = new ArrayList<Localizable>(len);
-        msgArguments = new ArrayList<Object[]>(len);
+        msgPatterns = new FastList<Localizable>(len);
+        msgArguments = new FastList<Object[]>(len);
         // Step 2.
         for (int i = 0; i < len; i++) {
             // Step 3.
@@ -311,7 +313,7 @@ public class ExceptionContext implements Serializable {
                ClassNotFoundException {
         // Step 1.
         final int len = in.readInt();
-        context = new HashMap<String, Object>();
+        context = new HashedMap<String, Object>();
         for (int i = 0; i < len; i++) {
             // Step 2.
             final String key = (String) in.readObject();

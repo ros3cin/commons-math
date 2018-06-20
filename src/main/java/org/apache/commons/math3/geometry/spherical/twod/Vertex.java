@@ -18,6 +18,7 @@ package org.apache.commons.math3.geometry.spherical.twod;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 /** Spherical polygons boundary vertex.
  * @see SphericalPolygonsSet#getBoundaryLoops()
@@ -45,7 +46,7 @@ public class Vertex {
         this.location = location;
         this.incoming = null;
         this.outgoing = null;
-        this.circles  = new ArrayList<Circle>();
+        this.circles  = new NodeCachingLinkedList<Circle>();
     }
 
     /** Get Vertex location.

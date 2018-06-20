@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.map.HashedMap;
 
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 
@@ -49,7 +50,7 @@ public class TransformerMap implements NumberTransformer, Serializable {
      * Build a map containing only the default transformer.
      */
     public TransformerMap() {
-        map = new HashMap<Class<?>, NumberTransformer>();
+        map = new HashedMap<Class<?>, NumberTransformer>();
         defaultTransformer = new DefaultTransformer();
     }
 

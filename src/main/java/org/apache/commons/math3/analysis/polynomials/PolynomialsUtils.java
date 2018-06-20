@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.map.HashedMap;
 
 import org.apache.commons.math3.fraction.BigFraction;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -78,7 +79,7 @@ public class PolynomialsUtils {
         LEGENDRE_COEFFICIENTS.add(BigFraction.ONE);
 
         // initialize map for Jacobi polynomials
-        JACOBI_COEFFICIENTS = new HashMap<JacobiKey, List<BigFraction>>();
+        JACOBI_COEFFICIENTS = new HashedMap<JacobiKey, List<BigFraction>>();
 
     }
 

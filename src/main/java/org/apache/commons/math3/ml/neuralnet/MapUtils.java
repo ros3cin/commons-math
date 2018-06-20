@@ -17,12 +17,14 @@
 
 package org.apache.commons.math3.ml.neuralnet;
 
+import org.apache.commons.collections4.map.HashedMap;
 import java.util.HashMap;
 import java.util.Collection;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import org.apache.commons.math3.ml.neuralnet.twod.NeuronSquareMesh2D;
 import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.util.Pair;
+import org.apache.commons.collections4.map.HashedMap;
 
 /**
  * Utilities for network maps.
@@ -151,7 +153,7 @@ public class MapUtils {
     public static int[][] computeHitHistogram(Iterable<double[]> data,
                                               NeuronSquareMesh2D map,
                                               DistanceMeasure distance) {
-        final HashMap<Neuron, Integer> hit = new HashMap<Neuron, Integer>();
+        final HashedMap<Neuron, Integer> hit = new HashedMap<Neuron, Integer>();
         final Network net = map.getNetwork();
 
         for (double[] f : data) {

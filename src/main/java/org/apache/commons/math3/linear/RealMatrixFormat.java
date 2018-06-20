@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.CompositeFormat;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 /**
  * Formats a {@code nxm} matrix in components list format
@@ -315,7 +316,7 @@ public class RealMatrixFormat {
         }
 
         // parse components
-        List<List<Number>> matrix = new ArrayList<List<Number>>();
+        List<List<Number>> matrix = new NodeCachingLinkedList<List<Number>>();
         List<Number> rowComponents = new ArrayList<Number>();
         for (boolean loop = true; loop;){
 

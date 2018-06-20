@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.exception.NotANumberException;
@@ -117,7 +118,7 @@ public class EnumeratedDistribution<T> implements Serializable {
         throws NotPositiveException, MathArithmeticException, NotFiniteNumberException, NotANumberException {
         random = rng;
 
-        singletons = new ArrayList<T>(pmf.size());
+        singletons = new FastList<T>(pmf.size());
         final double[] probs = new double[pmf.size()];
 
         for (int i = 0; i < pmf.size(); i++) {

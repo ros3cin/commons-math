@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 import org.apache.commons.math3.exception.MathInternalError;
 import org.apache.commons.math3.exception.NotANumberException;
@@ -229,7 +230,7 @@ public class NaturalRanking implements RankingAlgorithm {
         double[] out = new double[ranks.length];
         int pos = 1;  // position in sorted array
         out[ranks[0].getPosition()] = pos;
-        List<Integer> tiesTrace = new ArrayList<Integer>();
+        List<Integer> tiesTrace = new NodeCachingLinkedList<Integer>();
         tiesTrace.add(ranks[0].getPosition());
         for (int i = 1; i < ranks.length; i++) {
             if (Double.compare(ranks[i].getValue(), ranks[i - 1].getValue()) > 0) {

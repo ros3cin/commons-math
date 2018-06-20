@@ -20,6 +20,7 @@ package org.apache.commons.math3.ode.nonstiff;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.collections4.map.HashedMap;
 
 import org.apache.commons.math3.fraction.BigFraction;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
@@ -31,6 +32,7 @@ import org.apache.commons.math3.linear.FieldMatrix;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.collections4.map.HashedMap;
 
 /** Transformer to Nordsieck vectors for Adams integrators.
  * <p>This class is used by {@link AdamsBashforthIntegrator Adams-Bashforth} and
@@ -135,7 +137,7 @@ public class AdamsNordsieckTransformer {
 
     /** Cache for already computed coefficients. */
     private static final Map<Integer, AdamsNordsieckTransformer> CACHE =
-        new HashMap<Integer, AdamsNordsieckTransformer>();
+        new HashedMap<Integer, AdamsNordsieckTransformer>();
 
     /** Update matrix for the higher order derivatives h<sup>2</sup>/2y'', h<sup>3</sup>/6 y''' ... */
     private final Array2DRowRealMatrix update;

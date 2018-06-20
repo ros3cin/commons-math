@@ -29,6 +29,7 @@ import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
 import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
 import org.apache.commons.math3.optim.nonlinear.vector.Target;
 import org.apache.commons.math3.optim.nonlinear.vector.Weight;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 /**
  * Fitter for parametric univariate real functions y = f(x).
@@ -64,7 +65,7 @@ public class CurveFitter<T extends ParametricUnivariateFunction> {
      */
     public CurveFitter(final MultivariateVectorOptimizer optimizer) {
         this.optimizer = optimizer;
-        observations = new ArrayList<WeightedObservedPoint>();
+        observations = new NodeCachingLinkedList<WeightedObservedPoint>();
     }
 
     /** Add an observed (x,y) point to the sample with unit weight.

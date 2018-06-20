@@ -18,6 +18,7 @@ package org.apache.commons.math3.exception.util;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 /**
  * Utility class for transforming the list of arguments passed to
@@ -38,7 +39,7 @@ public class ArgUtils {
      * {@code array}.
      */
     public static Object[] flatten(Object[] array) {
-        final List<Object> list = new ArrayList<Object>();
+        final List<Object> list = new NodeCachingLinkedList<Object>();
         if (array != null) {
             for (Object o : array) {
                 if (o instanceof Object[]) {

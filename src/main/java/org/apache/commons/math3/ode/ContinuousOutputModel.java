@@ -20,6 +20,7 @@ package org.apache.commons.math3.ode;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
@@ -111,7 +112,7 @@ public class ContinuousOutputModel
    * Build an empty continuous output model.
    */
   public ContinuousOutputModel() {
-    steps = new ArrayList<StepInterpolator>();
+    steps = new FastList<StepInterpolator>();
     initialTime = Double.NaN;
     finalTime   = Double.NaN;
     forward     = true;

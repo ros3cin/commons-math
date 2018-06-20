@@ -19,6 +19,7 @@ package org.apache.commons.math3.fitting;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.Serializable;
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 
 /**
  * Simple container for weighted observed points used
@@ -32,7 +33,7 @@ public class WeightedObservedPoints implements Serializable {
 
     /** Observed points. */
     private final List<WeightedObservedPoint> observations
-        = new ArrayList<WeightedObservedPoint>();
+        = new NodeCachingLinkedList<WeightedObservedPoint>();
 
     /**
      * Adds a point to the sample.
