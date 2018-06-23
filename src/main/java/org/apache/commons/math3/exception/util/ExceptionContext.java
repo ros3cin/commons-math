@@ -19,6 +19,9 @@ package org.apache.commons.math3.exception.util;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+
+import org.eclipse.collections.impl.list.mutable.FastList;
+
 import java.util.Map;
 import java.io.IOException;
 import java.io.Serializable;
@@ -62,8 +65,8 @@ public class ExceptionContext implements Serializable {
      */
     public ExceptionContext(final Throwable throwable) {
         this.throwable = throwable;
-        msgPatterns    = new ArrayList<Localizable>();
-        msgArguments   = new ArrayList<Object[]>();
+        msgPatterns    = new FastList<Localizable>();
+        msgArguments   = new FastList<Object[]>();
         context        = new HashMap<String, Object>();
     }
 
@@ -256,8 +259,8 @@ public class ExceptionContext implements Serializable {
                ClassNotFoundException {
         // Step 1.
         final int len = in.readInt();
-        msgPatterns = new ArrayList<Localizable>(len);
-        msgArguments = new ArrayList<Object[]>(len);
+        msgPatterns = new FastList<Localizable>(len);
+        msgArguments = new FastList<Object[]>(len);
         // Step 2.
         for (int i = 0; i < len; i++) {
             // Step 3.

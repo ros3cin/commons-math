@@ -26,6 +26,7 @@ import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 /**
  * Class for representing <a href="http://en.wikipedia.org/wiki/Mixture_model">
@@ -93,7 +94,7 @@ public class MixtureMultivariateRealDistribution<T extends MultivariateRealDistr
         }
 
         // Store each distribution and its normalized weight.
-        distribution = new ArrayList<T>();
+        distribution = new FastList<T>();
         weight = new double[numComp];
         for (int i = 0; i < numComp; i++) {
             final Pair<Double, T> comp = components.get(i);

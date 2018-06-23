@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -181,7 +182,7 @@ public class MicrosphereInterpolatingFunction
             samples.put(new ArrayRealVector(xvalI), yval[i]);
         }
 
-        microsphere = new ArrayList<MicrosphereSurfaceElement>(microsphereElements);
+        microsphere = new NodeCachingLinkedList<MicrosphereSurfaceElement>(microsphereElements);
         // Generate the microsphere, assuming that a fairly large number of
         // randomly generated normals will represent a sphere.
         for (int i = 0; i < microsphereElements; i++) {

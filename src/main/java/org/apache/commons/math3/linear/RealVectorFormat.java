@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.CompositeFormat;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 /**
  * Formats a vector in components list format "{v0; v1; ...; vk-1}".
@@ -247,7 +248,7 @@ public class RealVectorFormat {
         }
 
         // parse components
-        List<Number> components = new ArrayList<Number>();
+        List<Number> components = new FastList<Number>();
         for (boolean loop = true; loop;){
 
             if (!components.isEmpty()) {

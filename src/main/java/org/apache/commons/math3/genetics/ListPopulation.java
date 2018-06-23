@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.eclipse.collections.impl.list.mutable.FastList;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
@@ -48,7 +49,7 @@ public abstract class ListPopulation implements Population {
      * @throws NotPositiveException if the population limit is not a positive number (&lt; 1)
      */
     public ListPopulation(final int populationLimit) throws NotPositiveException {
-        this(Collections.<Chromosome> emptyList(), populationLimit);
+        this(new FastList<Chromosome>(), populationLimit);
     }
 
     /**

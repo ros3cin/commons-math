@@ -28,6 +28,7 @@ import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.ode.sampling.StepHandler;
 import org.apache.commons.math3.ode.sampling.StepInterpolator;
 import org.apache.commons.math3.util.FastMath;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 /**
  * This class stores all information provided by an ODE integrator
@@ -111,7 +112,7 @@ public class ContinuousOutputModel
    * Build an empty continuous output model.
    */
   public ContinuousOutputModel() {
-    steps = new ArrayList<StepInterpolator>();
+    steps = new FastList<StepInterpolator>();
     initialTime = Double.NaN;
     finalTime   = Double.NaN;
     forward     = true;

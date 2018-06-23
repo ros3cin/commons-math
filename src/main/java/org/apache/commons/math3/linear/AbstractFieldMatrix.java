@@ -18,7 +18,9 @@
 package org.apache.commons.math3.linear;
 
 import java.util.ArrayList;
+import org.apache.commons.collections4.list.TreeList;
 
+import org.apache.commons.collections4.list.NodeCachingLinkedList;
 import org.apache.commons.math3.Field;
 import org.apache.commons.math3.FieldElement;
 import org.apache.commons.math3.exception.DimensionMismatchException;
@@ -295,7 +297,7 @@ public abstract class AbstractFieldMatrix<T extends FieldElement<T>>
 
         final char[] binaryRepresentation = Integer.toBinaryString(power)
                 .toCharArray();
-        final ArrayList<Integer> nonZeroPositions = new ArrayList<Integer>();
+        final NodeCachingLinkedList<Integer> nonZeroPositions = new NodeCachingLinkedList<Integer>();
 
         for (int i = 0; i < binaryRepresentation.length; ++i) {
             if (binaryRepresentation[i] == '1') {
@@ -304,8 +306,7 @@ public abstract class AbstractFieldMatrix<T extends FieldElement<T>>
             }
         }
 
-        ArrayList<FieldMatrix<T>> results = new ArrayList<FieldMatrix<T>>(
-                binaryRepresentation.length);
+        TreeList<FieldMatrix<T>> results = new TreeList<FieldMatrix<T>>();
 
         results.add(0, this.copy());
 

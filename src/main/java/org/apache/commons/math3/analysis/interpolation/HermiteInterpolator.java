@@ -19,6 +19,8 @@ package org.apache.commons.math3.analysis.interpolation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.collections4.list.TreeList;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableVectorFunction;
@@ -59,9 +61,9 @@ public class HermiteInterpolator implements UnivariateDifferentiableVectorFuncti
     /** Create an empty interpolator.
      */
     public HermiteInterpolator() {
-        this.abscissae      = new ArrayList<Double>();
-        this.topDiagonal    = new ArrayList<double[]>();
-        this.bottomDiagonal = new ArrayList<double[]>();
+        this.abscissae      = new FastList<Double>();
+        this.topDiagonal    = new FastList<double[]>();
+        this.bottomDiagonal = new TreeList<double[]>();
     }
 
     /** Add a sample point.
