@@ -18,7 +18,11 @@ package org.apache.commons.math3.optim.linear;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.optim.OptimizationData;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -245,7 +249,7 @@ public class SimplexSolver extends LinearOptimizer {
      */
     private Integer getPivotRow(SimplexTableau tableau, final int col) {
         // create a list of all the rows that tie for the lowest score in the minimum ratio test
-        List<Integer> minRatioPositions = new ArrayList<Integer>();
+        List<Integer> minRatioPositions = new FastList<Integer>();
         double minRatio = Double.MAX_VALUE;
         for (int i = tableau.getNumObjectiveFunctions(); i < tableau.getHeight(); i++) {
             final double rhs = tableau.getEntry(i, tableau.getWidth() - 1);

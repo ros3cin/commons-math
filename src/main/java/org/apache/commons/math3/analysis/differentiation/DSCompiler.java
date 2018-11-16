@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.analysis.differentiation;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -367,7 +371,7 @@ public class DSCompiler {
             }
 
             // combine terms with similar derivation orders
-            final List<int[]> combined = new ArrayList<int[]>(row.size());
+            final List<int[]> combined = new FastList<int[]>(row.size());
             for (int j = 0; j < row.size(); ++j) {
                 final int[] termJ = row.get(j);
                 if (termJ[0] > 0) {
@@ -430,7 +434,7 @@ public class DSCompiler {
         // with respect to the parameter this compiler handles and the
         // underlying one did not handle
         for (int i = 0; i < dSize; ++i) {
-            List<int[]> row = new ArrayList<int[]>();
+            List<int[]> row = new FastList<int[]>();
             for (int[] term : derivativeCompiler.compIndirection[i]) {
 
                 // handle term p * f_k(g(x)) * g_l1(x) * g_l2(x) * ... * g_lp(x)
@@ -477,7 +481,7 @@ public class DSCompiler {
             }
 
             // combine terms with similar derivation orders
-            final List<int[]> combined = new ArrayList<int[]>(row.size());
+            final List<int[]> combined = new FastList<int[]>(row.size());
             for (int j = 0; j < row.size(); ++j) {
                 final int[] termJ = row.get(j);
                 if (termJ[0] > 0) {

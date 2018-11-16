@@ -22,7 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
@@ -257,7 +261,7 @@ public class KMeansPlusPlusClusterer<T extends Clusterable<T>> {
 
         // Convert to list for indexed access. Make it unmodifiable, since removal of items
         // would screw up the logic of this method.
-        final List<T> pointList = Collections.unmodifiableList(new ArrayList<T> (points));
+        final List<T> pointList = Collections.unmodifiableList(new FastList<T> (points));
 
         // The number of points in the list.
         final int numPoints = pointList.size();

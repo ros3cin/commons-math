@@ -18,7 +18,11 @@ package org.apache.commons.math3.genetics;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
@@ -138,8 +142,8 @@ public class NPointCrossover<T> implements CrossoverPolicy {
         final List<T> parent1Rep = first.getRepresentation();
         final List<T> parent2Rep = second.getRepresentation();
         // and of the children
-        final List<T> child1Rep = new ArrayList<T>(length);
-        final List<T> child2Rep = new ArrayList<T>(length);
+        final List<T> child1Rep = new FastList<T>(length);
+        final List<T> child2Rep = new FastList<T>(length);
 
         final RandomGenerator random = GeneticAlgorithm.getRandomGenerator();
 

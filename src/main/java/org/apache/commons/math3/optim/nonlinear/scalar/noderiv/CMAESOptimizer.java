@@ -20,7 +20,11 @@ package org.apache.commons.math3.optim.nonlinear.scalar.noderiv;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
@@ -199,13 +203,13 @@ public class CMAESOptimizer
     private final RandomGenerator random;
 
     /** History of sigma values. */
-    private final List<Double> statisticsSigmaHistory = new ArrayList<Double>();
+    private final List<Double> statisticsSigmaHistory = new FastList<Double>();
     /** History of mean matrix. */
-    private final List<RealMatrix> statisticsMeanHistory = new ArrayList<RealMatrix>();
+    private final List<RealMatrix> statisticsMeanHistory = new FastList<RealMatrix>();
     /** History of fitness values. */
-    private final List<Double> statisticsFitnessHistory = new ArrayList<Double>();
+    private final List<Double> statisticsFitnessHistory = new FastList<Double>();
     /** History of D matrix. */
-    private final List<RealMatrix> statisticsDHistory = new ArrayList<RealMatrix>();
+    private final List<RealMatrix> statisticsDHistory = new FastList<RealMatrix>();
 
     /**
      * @param maxIterations Maximal number of iterations.

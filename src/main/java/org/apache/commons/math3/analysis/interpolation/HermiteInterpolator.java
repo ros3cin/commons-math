@@ -19,7 +19,11 @@ package org.apache.commons.math3.analysis.interpolation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
 import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableVectorFunction;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
@@ -59,9 +63,9 @@ public class HermiteInterpolator implements UnivariateDifferentiableVectorFuncti
     /** Create an empty interpolator.
      */
     public HermiteInterpolator() {
-        this.abscissae      = new ArrayList<Double>();
-        this.topDiagonal    = new ArrayList<double[]>();
-        this.bottomDiagonal = new ArrayList<double[]>();
+        this.abscissae      = new FastList<Double>();
+        this.topDiagonal    = new FastList<double[]>();
+        this.bottomDiagonal = new FastList<double[]>();
     }
 
     /** Add a sample point.

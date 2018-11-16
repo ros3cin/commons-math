@@ -20,7 +20,11 @@ package org.apache.commons.math3.optimization.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NotPositiveException;
@@ -217,13 +221,13 @@ public class CMAESOptimizer
     private RandomGenerator random;
 
     /** History of sigma values. */
-    private List<Double> statisticsSigmaHistory = new ArrayList<Double>();
+    private List<Double> statisticsSigmaHistory = new FastList<Double>();
     /** History of mean matrix. */
-    private List<RealMatrix> statisticsMeanHistory = new ArrayList<RealMatrix>();
+    private List<RealMatrix> statisticsMeanHistory = new FastList<RealMatrix>();
     /** History of fitness values. */
-    private List<Double> statisticsFitnessHistory = new ArrayList<Double>();
+    private List<Double> statisticsFitnessHistory = new FastList<Double>();
     /** History of D matrix. */
-    private List<RealMatrix> statisticsDHistory = new ArrayList<RealMatrix>();
+    private List<RealMatrix> statisticsDHistory = new FastList<RealMatrix>();
 
     /**
      * Default constructor, uses default parameters

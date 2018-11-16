@@ -16,7 +16,8 @@
  */
 
 package org.apache.commons.math3.linear;
-
+import org.apache.commons.collections4.list.TreeList;
+import org.eclipse.collections.impl.list.mutable.FastList;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -315,7 +316,7 @@ public class RealMatrixFormat {
         }
 
         // parse components
-        List<List<Number>> matrix = new ArrayList<List<Number>>();
+        List<List<Number>> matrix = new FastList<List<Number>>();
         List<Number> rowComponents = new ArrayList<Number>();
         for (boolean loop = true; loop;){
 

@@ -23,7 +23,12 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.CompositeFormat;
 
@@ -247,7 +252,7 @@ public class RealVectorFormat {
         }
 
         // parse components
-        List<Number> components = new ArrayList<Number>();
+        List<Number> components = new FastList<Number>();
         for (boolean loop = true; loop;){
 
             if (!components.isEmpty()) {

@@ -18,7 +18,11 @@ package org.apache.commons.math3.exception.util;
 
 import java.util.List;
 import java.util.ArrayList;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 /**
  * Utility class for transforming the list of arguments passed to
  * constructors of exceptions.
@@ -38,7 +42,7 @@ public class ArgUtils {
      * {@code array}.
      */
     public static Object[] flatten(Object[] array) {
-        final List<Object> list = new ArrayList<Object>();
+        final List<Object> list = new FastList<Object>();
         if (array != null) {
             for (Object o : array) {
                 if (o instanceof Object[]) {

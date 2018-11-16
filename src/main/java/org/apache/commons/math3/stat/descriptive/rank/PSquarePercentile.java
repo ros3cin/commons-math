@@ -15,7 +15,12 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.stat.descriptive.rank;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;

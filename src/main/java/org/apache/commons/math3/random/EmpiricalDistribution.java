@@ -16,7 +16,12 @@
  */
 
 package org.apache.commons.math3.random;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -215,7 +220,7 @@ public class EmpiricalDistribution extends AbstractRealDistribution {
         super(randomData.getRandomGenerator());
         this.binCount = binCount;
         this.randomData = randomData;
-        binStats = new ArrayList<SummaryStatistics>();
+        binStats = new TreeList<SummaryStatistics>();
     }
 
     /**

@@ -21,7 +21,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
@@ -76,7 +80,7 @@ public abstract class ListPopulation implements Population {
                                                 chromosomes.size(), populationLimit, false);
         }
         this.populationLimit = populationLimit;
-        this.chromosomes = new ArrayList<Chromosome>(populationLimit);
+        this.chromosomes = new FastList<Chromosome>(populationLimit);
         this.chromosomes.addAll(chromosomes);
     }
 

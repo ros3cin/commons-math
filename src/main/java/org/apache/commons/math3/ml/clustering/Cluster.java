@@ -16,10 +16,16 @@
  */
 
 package org.apache.commons.math3.ml.clustering;
-
+import org.apache.commons.collections4.list.TreeList;
+import org.eclipse.collections.impl.list.mutable.FastList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /**
  * Cluster holding a set of {@link Clusterable} points.
@@ -38,7 +44,7 @@ public class Cluster<T extends Clusterable> implements Serializable {
      * Build a cluster centered at a specified point.
      */
     public Cluster() {
-        points = new ArrayList<T>();
+        points = new FastList<T>();
     }
 
     /**

@@ -28,6 +28,12 @@ import org.apache.commons.math3.ml.neuralnet.SquareNeighbourhood;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.math3.exception.MathInternalError;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 
 /**
  * Neural network with the topology of a two-dimensional surface.
@@ -228,7 +234,7 @@ public class NeuronSquareMesh2D implements Serializable {
      */
     private void createLinks() {
         // "linkEnd" will store the identifiers of the "neighbours".
-        final List<Long> linkEnd = new ArrayList<Long>();
+        final List<Long> linkEnd = new FastList<Long>();
         final int iLast = numberOfRows - 1;
         final int jLast = numberOfColumns - 1;
         for (int i = 0; i < numberOfRows; i++) {

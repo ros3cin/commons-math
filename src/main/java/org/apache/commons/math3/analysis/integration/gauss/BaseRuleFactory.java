@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.analysis.integration.gauss;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.math3.util.Pair;
@@ -36,10 +40,10 @@ import org.apache.commons.math3.exception.util.LocalizedFormats;
 public abstract class BaseRuleFactory<T extends Number> {
     /** List of points and weights, indexed by the order of the rule. */
     private final Map<Integer, Pair<T[], T[]>> pointsAndWeights
-        = new TreeMap<Integer, Pair<T[], T[]>>();
+        = new HashedMap<Integer, Pair<T[], T[]>>();
     /** Cache for double-precision rules. */
     private final Map<Integer, Pair<double[], double[]>> pointsAndWeightsDouble
-        = new TreeMap<Integer, Pair<double[], double[]>>();
+        = new HashedMap<Integer, Pair<double[], double[]>>();
 
     /**
      * Gets a copy of the quadrature rule with the given number of integration

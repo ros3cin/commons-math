@@ -20,7 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
@@ -279,8 +283,8 @@ public class FuzzyKMeansClusterer<T extends Clusterable> extends Clusterer<T> {
         }
 
         // copy the input collection to an unmodifiable list with indexed access
-        points = Collections.unmodifiableList(new ArrayList<T>(dataPoints));
-        clusters = new ArrayList<CentroidCluster<T>>();
+        points = Collections.unmodifiableList(new FastList<T>(dataPoints));
+        clusters = new FastList<CentroidCluster<T>>();
         membershipMatrix = new double[size][k];
         final double[][] oldMatrix = new double[size][k];
 
@@ -316,7 +320,7 @@ public class FuzzyKMeansClusterer<T extends Clusterable> extends Clusterer<T> {
      */
     private void updateClusterCenters() {
         int j = 0;
-        final List<CentroidCluster<T>> newClusters = new ArrayList<CentroidCluster<T>>(k);
+        final List<CentroidCluster<T>> newClusters = new FastList<CentroidCluster<T>>(k);
         for (final CentroidCluster<T> cluster : clusters) {
             final Clusterable center = cluster.getCenter();
             int i = 0;

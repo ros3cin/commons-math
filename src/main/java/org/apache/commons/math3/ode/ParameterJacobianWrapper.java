@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.ode;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +55,7 @@ class ParameterJacobianWrapper implements ParameterJacobianProvider {
                                     final ParameterConfiguration[] paramsAndSteps) {
         this.fode = fode;
         this.pode = pode;
-        this.hParam = new HashMap<String, Double>();
+        this.hParam = new HashedMap<String, Double>();
 
         // set up parameters for jacobian computation
         for (final ParameterConfiguration param : paramsAndSteps) {

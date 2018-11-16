@@ -18,7 +18,11 @@ package org.apache.commons.math3.ode;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 
@@ -76,7 +80,7 @@ public class ExpandableStatefulODE {
         this.time            = Double.NaN;
         this.primaryState    = new double[n];
         this.primaryStateDot = new double[n];
-        this.components      = new ArrayList<ExpandableStatefulODE.SecondaryComponent>();
+        this.components      = new FastList<ExpandableStatefulODE.SecondaryComponent>();
     }
 
     /** Get the primary set of differential equations.

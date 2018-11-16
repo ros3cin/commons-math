@@ -19,7 +19,12 @@ package org.apache.commons.math3.geometry.euclidean.twod;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.LinkedList;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.geometry.Point;
 import org.apache.commons.math3.geometry.euclidean.oned.Euclidean1D;
 import org.apache.commons.math3.geometry.euclidean.oned.Interval;
@@ -430,7 +435,7 @@ public class PolygonsSet extends AbstractRegion<Euclidean2D, Euclidean1D> {
             this.location = location;
             this.incoming = null;
             this.outgoing = null;
-            this.lines    = new ArrayList<Line>();
+            this.lines    = new FastList<Line>();
         }
 
         /** Get Vertex location.
@@ -705,7 +710,7 @@ public class PolygonsSet extends AbstractRegion<Euclidean2D, Euclidean1D> {
                 }
 
                 // create the segment loops
-                final ArrayList<List<Segment>> loops = new ArrayList<List<Segment>>();
+                final List<List<Segment>> loops = new LinkedList<List<Segment>>();
                 for (ConnectableSegment s = getUnprocessed(segments); s != null; s = getUnprocessed(segments)) {
                     final List<Segment> loop = followLoop(s);
                     if (loop != null) {
@@ -1063,7 +1068,7 @@ public class PolygonsSet extends AbstractRegion<Euclidean2D, Euclidean1D> {
          */
         public SegmentsBuilder(final double tolerance) {
             this.tolerance = tolerance;
-            this.segments  = new ArrayList<ConnectableSegment>();
+            this.segments  = new FastList<ConnectableSegment>();
         }
 
         /** {@inheritDoc} */

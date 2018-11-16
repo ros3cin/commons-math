@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.fitting;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
@@ -64,7 +68,7 @@ public class CurveFitter<T extends ParametricUnivariateFunction> {
      */
     public CurveFitter(final MultivariateVectorOptimizer optimizer) {
         this.optimizer = optimizer;
-        observations = new ArrayList<WeightedObservedPoint>();
+        observations = new FastList<WeightedObservedPoint>();
     }
 
     /** Add an observed (x,y) point to the sample with unit weight.

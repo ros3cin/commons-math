@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.optim.nonlinear.scalar;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -40,7 +44,7 @@ public class MultiStartMultivariateOptimizer
     /** Underlying optimizer. */
     private final MultivariateOptimizer optimizer;
     /** Found optima. */
-    private final List<PointValuePair> optima = new ArrayList<PointValuePair>();
+    private final List<PointValuePair> optima = new FastList<PointValuePair>();
 
     /**
      * Create a multi-start optimizer from a single-start optimizer.

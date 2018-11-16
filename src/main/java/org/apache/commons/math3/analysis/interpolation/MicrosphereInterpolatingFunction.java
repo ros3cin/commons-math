@@ -20,7 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -168,7 +172,7 @@ public class MicrosphereInterpolatingFunction
         this.brightnessExponent = brightnessExponent;
 
         // Copy data samples.
-        samples = new HashMap<RealVector, Double>(yval.length);
+        samples = new HashedMap<RealVector, Double>(yval.length);
         for (int i = 0; i < xval.length; ++i) {
             final double[] xvalI = xval[i];
             if (xvalI == null) {
@@ -181,7 +185,7 @@ public class MicrosphereInterpolatingFunction
             samples.put(new ArrayRealVector(xvalI), yval[i]);
         }
 
-        microsphere = new ArrayList<MicrosphereSurfaceElement>(microsphereElements);
+        microsphere = new FastList<MicrosphereSurfaceElement>(microsphereElements);
         // Generate the microsphere, assuming that a fairly large number of
         // randomly generated normals will represent a sphere.
         for (int i = 0; i < microsphereElements; i++) {

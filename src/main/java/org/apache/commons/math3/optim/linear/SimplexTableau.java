@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 package org.apache.commons.math3.optim.linear;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -446,7 +450,7 @@ class SimplexTableau implements Serializable {
         Integer negativeVarBasicRow = negativeVarColumn > 0 ? getBasicRow(negativeVarColumn) : null;
         double mostNegative = negativeVarBasicRow == null ? 0 : getEntry(negativeVarBasicRow, getRhsOffset());
 
-        final Set<Integer> usedBasicRows = new HashSet<Integer>();
+        final Set<Integer> usedBasicRows = new UnifiedSet<Integer>();
         final double[] coefficients = new double[getOriginalNumDecisionVariables()];
         for (int i = 0; i < coefficients.length; i++) {
             int colIndex = columnLabels.indexOf("x" + i);

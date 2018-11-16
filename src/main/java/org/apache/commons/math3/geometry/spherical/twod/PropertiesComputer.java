@@ -18,7 +18,11 @@ package org.apache.commons.math3.geometry.spherical.twod;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.MathInternalError;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.partitioning.BSPTree;
@@ -50,7 +54,7 @@ class PropertiesComputer implements BSPTreeVisitor<Sphere2D> {
         this.tolerance              = tolerance;
         this.summedArea             = 0;
         this.summedBarycenter       = Vector3D.ZERO;
-        this.convexCellsInsidePoints = new ArrayList<Vector3D>();
+        this.convexCellsInsidePoints = new FastList<Vector3D>();
     }
 
     /** {@inheritDoc} */

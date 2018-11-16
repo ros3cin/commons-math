@@ -21,7 +21,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.geometry.enclosing.EnclosingBall;
 import org.apache.commons.math3.geometry.enclosing.WelzlEncloser;
@@ -382,7 +386,7 @@ public class SphericalPolygonsSet extends AbstractRegion<Sphere2D, Sphere1D> {
 
 
                 // convert the list of all edges into a list of start vertices
-                loops = new ArrayList<Vertex>();
+                loops = new FastList<Vertex>();
                 while (!edges.isEmpty()) {
 
                     // this is an edge belonging to a new loop, store it

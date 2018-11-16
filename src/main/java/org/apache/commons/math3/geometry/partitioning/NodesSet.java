@@ -19,7 +19,11 @@ package org.apache.commons.math3.geometry.partitioning;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.geometry.Space;
 
 /** Set of {@link BSPTree BSP tree} nodes.
@@ -35,7 +39,7 @@ public class NodesSet<S extends Space> implements Iterable<BSPTree<S>> {
     /** Simple constructor.
      */
     public NodesSet() {
-        list = new ArrayList<BSPTree<S>>();
+        list = new FastList<BSPTree<S>>();
     }
 
     /** Add a node if not already known.

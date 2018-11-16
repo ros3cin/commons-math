@@ -16,7 +16,11 @@
  */
 
 package org.apache.commons.math3.ml.neuralnet.sofm;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -109,7 +113,7 @@ public class KohonenUpdateAction implements UpdateAction {
 
         if (currentNeighbourhood > 0) {
             // Initial set of neurons only contains the winning neuron.
-            Collection<Neuron> neighbours = new HashSet<Neuron>();
+            Collection<Neuron> neighbours = new UnifiedSet<Neuron>();
             neighbours.add(best);
             // Winning neuron must be excluded from the neighbours.
             final HashSet<Neuron> exclude = new HashSet<Neuron>();

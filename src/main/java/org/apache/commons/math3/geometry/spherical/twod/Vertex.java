@@ -18,6 +18,11 @@ package org.apache.commons.math3.geometry.spherical.twod;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /** Spherical polygons boundary vertex.
  * @see SphericalPolygonsSet#getBoundaryLoops()
@@ -45,7 +50,7 @@ public class Vertex {
         this.location = location;
         this.incoming = null;
         this.outgoing = null;
-        this.circles  = new ArrayList<Circle>();
+        this.circles  = new FastList<Circle>();
     }
 
     /** Get Vertex location.

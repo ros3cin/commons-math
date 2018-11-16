@@ -19,7 +19,11 @@ package org.apache.commons.math3.distribution.fitting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.MixtureMultivariateNormalDistribution;
 import org.apache.commons.math3.exception.ConvergenceException;

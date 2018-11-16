@@ -18,7 +18,12 @@ package org.apache.commons.math3.geometry.euclidean.twod;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
+import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.geometry.Point;
@@ -50,7 +55,7 @@ class NestedLoops {
     private Vector2D[] loop;
 
     /** Surrounded loops. */
-    private ArrayList<NestedLoops> surrounded;
+    private List<NestedLoops> surrounded;
 
     /** Polygon enclosing a finite region. */
     private Region<Euclidean2D> polygon;
@@ -70,7 +75,7 @@ class NestedLoops {
      * @since 3.3
      */
     public NestedLoops(final double tolerance) {
-        this.surrounded = new ArrayList<NestedLoops>();
+        this.surrounded = new FastList<NestedLoops>();
         this.tolerance  = tolerance;
     }
 
@@ -89,7 +94,7 @@ class NestedLoops {
         }
 
         this.loop       = loop;
-        this.surrounded = new ArrayList<NestedLoops>();
+        this.surrounded = new FastList<NestedLoops>();
         this.tolerance  = tolerance;
 
         // build the polygon defined by the loop

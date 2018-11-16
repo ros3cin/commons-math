@@ -16,7 +16,12 @@
  */
 
 package org.apache.commons.math3.ml.neuralnet;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
@@ -151,7 +156,7 @@ public class MapUtils {
     public static int[][] computeHitHistogram(Iterable<double[]> data,
                                               NeuronSquareMesh2D map,
                                               DistanceMeasure distance) {
-        final HashMap<Neuron, Integer> hit = new HashMap<Neuron, Integer>();
+        final Map<Neuron, Integer> hit = new HashedMap<Neuron, Integer>();
         final Network net = map.getNetwork();
 
         for (double[] f : data) {

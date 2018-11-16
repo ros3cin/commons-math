@@ -20,7 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.apache.commons.math3.fraction.BigFraction;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
@@ -51,34 +55,34 @@ public class PolynomialsUtils {
 
         // initialize recurrence for Chebyshev polynomials
         // T0(X) = 1, T1(X) = 0 + 1 * X
-        CHEBYSHEV_COEFFICIENTS = new ArrayList<BigFraction>();
+        CHEBYSHEV_COEFFICIENTS = new FastList<BigFraction>();
         CHEBYSHEV_COEFFICIENTS.add(BigFraction.ONE);
         CHEBYSHEV_COEFFICIENTS.add(BigFraction.ZERO);
         CHEBYSHEV_COEFFICIENTS.add(BigFraction.ONE);
 
         // initialize recurrence for Hermite polynomials
         // H0(X) = 1, H1(X) = 0 + 2 * X
-        HERMITE_COEFFICIENTS = new ArrayList<BigFraction>();
+        HERMITE_COEFFICIENTS = new FastList<BigFraction>();
         HERMITE_COEFFICIENTS.add(BigFraction.ONE);
         HERMITE_COEFFICIENTS.add(BigFraction.ZERO);
         HERMITE_COEFFICIENTS.add(BigFraction.TWO);
 
         // initialize recurrence for Laguerre polynomials
         // L0(X) = 1, L1(X) = 1 - 1 * X
-        LAGUERRE_COEFFICIENTS = new ArrayList<BigFraction>();
+        LAGUERRE_COEFFICIENTS = new FastList<BigFraction>();
         LAGUERRE_COEFFICIENTS.add(BigFraction.ONE);
         LAGUERRE_COEFFICIENTS.add(BigFraction.ONE);
         LAGUERRE_COEFFICIENTS.add(BigFraction.MINUS_ONE);
 
         // initialize recurrence for Legendre polynomials
         // P0(X) = 1, P1(X) = 0 + 1 * X
-        LEGENDRE_COEFFICIENTS = new ArrayList<BigFraction>();
+        LEGENDRE_COEFFICIENTS = new FastList<BigFraction>();
         LEGENDRE_COEFFICIENTS.add(BigFraction.ONE);
         LEGENDRE_COEFFICIENTS.add(BigFraction.ZERO);
         LEGENDRE_COEFFICIENTS.add(BigFraction.ONE);
 
         // initialize map for Jacobi polynomials
-        JACOBI_COEFFICIENTS = new HashMap<JacobiKey, List<BigFraction>>();
+        JACOBI_COEFFICIENTS = new HashedMap<JacobiKey, List<BigFraction>>();
 
     }
 

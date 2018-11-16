@@ -19,7 +19,11 @@ package org.apache.commons.math3.fitting;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.Serializable;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 /**
  * Simple container for weighted observed points used
  * in {@link AbstractCurveFitter curve fitting} algorithms.
@@ -32,7 +36,7 @@ public class WeightedObservedPoints implements Serializable {
 
     /** Observed points. */
     private final List<WeightedObservedPoint> observations
-        = new ArrayList<WeightedObservedPoint>();
+        = new FastList<WeightedObservedPoint>();
 
     /**
      * Adds a point to the sample.
