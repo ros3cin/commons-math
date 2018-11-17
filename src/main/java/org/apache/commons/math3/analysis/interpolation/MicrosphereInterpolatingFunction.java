@@ -20,7 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -168,7 +173,7 @@ public class MicrosphereInterpolatingFunction
         this.brightnessExponent = brightnessExponent;
 
         // Copy data samples.
-        samples = new HashMap<RealVector, Double>(yval.length);
+        samples = new UnifiedMap<RealVector, Double>(yval.length);
         for (int i = 0; i < xval.length; ++i) {
             final double[] xvalI = xval[i];
             if (xvalI == null) {

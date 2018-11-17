@@ -27,7 +27,12 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.text.MessageFormat;
 import java.util.Locale;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 /**
  * Class that contains the actual implementation of the functionality mandated
  * by the {@link ExceptionContext} interface.
@@ -64,7 +69,7 @@ public class ExceptionContext implements Serializable {
         this.throwable = throwable;
         msgPatterns    = new ArrayList<Localizable>();
         msgArguments   = new ArrayList<Object[]>();
-        context        = new HashMap<String, Object>();
+        context        = new UnifiedMap<String, Object>();
     }
 
     /** Get a reference to the exception to which the context relates.

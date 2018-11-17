@@ -18,7 +18,12 @@ package org.apache.commons.math3.analysis.interpolation;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import org.apache.commons.math3.FieldElement;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathArithmeticException;
@@ -63,7 +68,7 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
     public FieldHermiteInterpolator() {
         this.abscissae      = new ArrayList<T>();
         this.topDiagonal    = new ArrayList<T[]>();
-        this.bottomDiagonal = new ArrayList<T[]>();
+        this.bottomDiagonal = new TreeList<T[]>();
     }
 
     /** Add a sample point.

@@ -20,7 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
 import org.apache.commons.math3.fraction.BigFraction;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
@@ -78,7 +83,7 @@ public class PolynomialsUtils {
         LEGENDRE_COEFFICIENTS.add(BigFraction.ONE);
 
         // initialize map for Jacobi polynomials
-        JACOBI_COEFFICIENTS = new HashMap<JacobiKey, List<BigFraction>>();
+        JACOBI_COEFFICIENTS = new UnifiedMap<JacobiKey, List<BigFraction>>();
 
     }
 

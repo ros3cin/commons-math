@@ -30,7 +30,13 @@ import org.apache.commons.math3.geometry.partitioning.BoundaryAttribute;
 import org.apache.commons.math3.geometry.spherical.oned.Arc;
 import org.apache.commons.math3.geometry.spherical.oned.ArcsSet;
 import org.apache.commons.math3.geometry.spherical.oned.S1Point;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
+import java.util.TreeSet;
 /** Visitor building edges.
  * @since 3.3
  */

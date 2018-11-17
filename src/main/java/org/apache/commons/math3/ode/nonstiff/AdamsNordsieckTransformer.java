@@ -20,7 +20,13 @@ package org.apache.commons.math3.ode.nonstiff;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
+import java.util.TreeSet;
 import org.apache.commons.math3.fraction.BigFraction;
 import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -135,7 +141,7 @@ public class AdamsNordsieckTransformer {
 
     /** Cache for already computed coefficients. */
     private static final Map<Integer, AdamsNordsieckTransformer> CACHE =
-        new HashMap<Integer, AdamsNordsieckTransformer>();
+        new UnifiedMap<Integer, AdamsNordsieckTransformer>();
 
     /** Update matrix for the higher order derivatives h<sup>2</sup>/2y'', h<sup>3</sup>/6 y''' ... */
     private final Array2DRowRealMatrix update;

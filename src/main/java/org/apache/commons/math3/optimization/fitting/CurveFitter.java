@@ -19,7 +19,13 @@ package org.apache.commons.math3.optimization.fitting;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
+import java.util.TreeSet;
 import org.apache.commons.math3.analysis.DifferentiableMultivariateVectorFunction;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
 import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
@@ -69,7 +75,7 @@ public class CurveFitter<T extends ParametricUnivariateFunction> {
     public CurveFitter(final DifferentiableMultivariateVectorOptimizer optimizer) {
         this.oldOptimizer = optimizer;
         this.optimizer    = null;
-        observations      = new ArrayList<WeightedObservedPoint>();
+        observations      = new FastList<WeightedObservedPoint>();
     }
 
     /** Simple constructor.
@@ -79,7 +85,7 @@ public class CurveFitter<T extends ParametricUnivariateFunction> {
     public CurveFitter(final MultivariateDifferentiableVectorOptimizer optimizer) {
         this.oldOptimizer = null;
         this.optimizer    = optimizer;
-        observations      = new ArrayList<WeightedObservedPoint>();
+        observations      = new FastList<WeightedObservedPoint>();
     }
 
     /** Add an observed (x,y) point to the sample with unit weight.

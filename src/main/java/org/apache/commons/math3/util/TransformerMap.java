@@ -21,7 +21,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.apache.commons.collections4.list.TreeList;
+import java.util.TreeSet;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 
 /**
@@ -49,7 +55,7 @@ public class TransformerMap implements NumberTransformer, Serializable {
      * Build a map containing only the default transformer.
      */
     public TransformerMap() {
-        map = new HashMap<Class<?>, NumberTransformer>();
+        map = new UnifiedMap<Class<?>, NumberTransformer>();
         defaultTransformer = new DefaultTransformer();
     }
 
