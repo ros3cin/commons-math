@@ -18,7 +18,6 @@ package org.apache.commons.math3.util;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.commons.math3.exception.MaxCountExceededException;
 
 /**
@@ -26,14 +25,17 @@ import org.apache.commons.math3.exception.MaxCountExceededException;
  * algorithms. The maximum number of iterations can be set, and methods are
  * provided to monitor the current iteration count. A lightweight event
  * framework is also provided.
- *
  */
 public class IterationManager {
 
-    /** Keeps a count of the number of iterations. */
+    /**
+     * Keeps a count of the number of iterations.
+     */
     private final Incrementor iterations;
 
-    /** The collection of all listeners attached to this iterative algorithm. */
+    /**
+     * The collection of all listeners attached to this iterative algorithm.
+     */
     private final Collection<IterationListener> listeners;
 
     /**
@@ -43,7 +45,7 @@ public class IterationManager {
      */
     public IterationManager(final int maxIterations) {
         this.iterations = new Incrementor(maxIterations);
-        this.listeners = new CopyOnWriteArrayList<IterationListener>();
+        this.listeners = new java.util.Vector<IterationListener>();
     }
 
     /**
@@ -55,10 +57,9 @@ public class IterationManager {
      * @throws org.apache.commons.math3.exception.NullArgumentException if {@code callBack} is {@code null}
      * @since 3.1
      */
-    public IterationManager(final int maxIterations,
-                            final Incrementor.MaxCountExceededCallback callBack) {
+    public IterationManager(final int maxIterations, final Incrementor.MaxCountExceededCallback callBack) {
         this.iterations = new Incrementor(maxIterations, callBack);
-        this.listeners = new CopyOnWriteArrayList<IterationListener>();
+        this.listeners = new java.util.Vector<IterationListener>();
     }
 
     /**
@@ -145,8 +146,7 @@ public class IterationManager {
      * @throws MaxCountExceededException if the maximum number of iterations is
      * reached.
      */
-    public void incrementIterationCount()
-        throws MaxCountExceededException {
+    public void incrementIterationCount() throws MaxCountExceededException {
         iterations.incrementCount();
     }
 
