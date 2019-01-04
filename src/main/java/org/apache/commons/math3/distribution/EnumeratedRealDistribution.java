@@ -18,7 +18,6 @@ package org.apache.commons.math3.distribution;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.exception.NotANumberException;
@@ -41,7 +40,9 @@ import org.apache.commons.math3.util.Pair;
  */
 public class EnumeratedRealDistribution extends AbstractRealDistribution {
 
-    /** Serializable UID. */
+    /**
+     * Serializable UID.
+     */
     private static final long serialVersionUID = 20130308L;
 
     /**
@@ -70,9 +71,7 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
      * @throws NotANumberException if any of the probabilities are NaN.
      * @throws MathArithmeticException all of the probabilities are 0.
      */
-    public EnumeratedRealDistribution(final double[] singletons, final double[] probabilities)
-    throws DimensionMismatchException, NotPositiveException, MathArithmeticException,
-           NotFiniteNumberException, NotANumberException {
+    public EnumeratedRealDistribution(final double[] singletons, final double[] probabilities) throws DimensionMismatchException, NotPositiveException, MathArithmeticException, NotFiniteNumberException, NotANumberException {
         this(new Well19937c(), singletons, probabilities);
     }
 
@@ -90,21 +89,15 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
      * @throws NotANumberException if any of the probabilities are NaN.
      * @throws MathArithmeticException all of the probabilities are 0.
      */
-    public EnumeratedRealDistribution(final RandomGenerator rng,
-                                    final double[] singletons, final double[] probabilities)
-        throws DimensionMismatchException, NotPositiveException, MathArithmeticException,
-               NotFiniteNumberException, NotANumberException {
+    public EnumeratedRealDistribution(final RandomGenerator rng, final double[] singletons, final double[] probabilities) throws DimensionMismatchException, NotPositiveException, MathArithmeticException, NotFiniteNumberException, NotANumberException {
         super(rng);
         if (singletons.length != probabilities.length) {
             throw new DimensionMismatchException(probabilities.length, singletons.length);
         }
-
-        List<Pair<Double, Double>> samples = new ArrayList<Pair<Double, Double>>(singletons.length);
-
+        List<Pair<Double, Double>> samples = new org.eclipse.collections.impl.list.mutable.FastList<Pair<Double, Double>>(singletons.length);
         for (int i = 0; i < singletons.length; i++) {
             samples.add(new Pair<Double, Double>(singletons[i], probabilities[i]));
         }
-
         innerDistribution = new EnumeratedDistribution<Double>(rng, samples);
     }
 
@@ -134,13 +127,11 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
      */
     public double cumulativeProbability(final double x) {
         double probability = 0;
-
         for (final Pair<Double, Double> sample : innerDistribution.getPmf()) {
             if (sample.getKey() <= x) {
                 probability += sample.getValue();
             }
         }
-
         return probability;
     }
 
@@ -152,22 +143,18 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
         if (p < 0.0 || p > 1.0) {
             throw new OutOfRangeException(p, 0, 1);
         }
-
         double probability = 0;
         double x = getSupportLowerBound();
         for (final Pair<Double, Double> sample : innerDistribution.getPmf()) {
             if (sample.getValue() == 0.0) {
                 continue;
             }
-
             probability += sample.getValue();
             x = sample.getKey();
-
             if (probability >= p) {
                 break;
             }
         }
-
         return x;
     }
 
@@ -178,11 +165,9 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
      */
     public double getNumericalMean() {
         double mean = 0;
-
         for (final Pair<Double, Double> sample : innerDistribution.getPmf()) {
             mean += sample.getValue() * sample.getKey();
         }
-
         return mean;
     }
 
@@ -194,12 +179,10 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
     public double getNumericalVariance() {
         double mean = 0;
         double meanOfSquares = 0;
-
         for (final Pair<Double, Double> sample : innerDistribution.getPmf()) {
             mean += sample.getValue() * sample.getKey();
             meanOfSquares += sample.getValue() * sample.getKey() * sample.getKey();
         }
-
         return meanOfSquares - mean * mean;
     }
 
@@ -217,7 +200,6 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
                 min = sample.getKey();
             }
         }
-
         return min;
     }
 
@@ -235,7 +217,6 @@ public class EnumeratedRealDistribution extends AbstractRealDistribution {
                 max = sample.getKey();
             }
         }
-
         return max;
     }
 

@@ -14,14 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.commons.math3.stat.correlation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
@@ -44,13 +42,19 @@ import org.apache.commons.math3.stat.ranking.RankingAlgorithm;
  */
 public class SpearmansCorrelation {
 
-    /** Input data */
+    /**
+     * Input data
+     */
     private final RealMatrix data;
 
-    /** Ranking algorithm  */
+    /**
+     * Ranking algorithm
+     */
     private final RankingAlgorithm rankingAlgorithm;
 
-    /** Rank correlation */
+    /**
+     * Rank correlation
+     */
     private final PearsonsCorrelation rankCorrelation;
 
     /**
@@ -148,7 +152,7 @@ public class SpearmansCorrelation {
      * @return correlation matrix
      */
     public RealMatrix computeCorrelationMatrix(final double[][] matrix) {
-       return computeCorrelationMatrix(new BlockRealMatrix(matrix));
+        return computeCorrelationMatrix(new BlockRealMatrix(matrix));
     }
 
     /**
@@ -164,18 +168,14 @@ public class SpearmansCorrelation {
         if (xArray.length != yArray.length) {
             throw new DimensionMismatchException(xArray.length, yArray.length);
         } else if (xArray.length < 2) {
-            throw new MathIllegalArgumentException(LocalizedFormats.INSUFFICIENT_DIMENSION,
-                                                   xArray.length, 2);
+            throw new MathIllegalArgumentException(LocalizedFormats.INSUFFICIENT_DIMENSION, xArray.length, 2);
         } else {
             double[] x = xArray;
             double[] y = yArray;
-            if (rankingAlgorithm instanceof NaturalRanking &&
-                NaNStrategy.REMOVED == ((NaturalRanking) rankingAlgorithm).getNanStrategy()) {
+            if (rankingAlgorithm instanceof NaturalRanking && NaNStrategy.REMOVED == ((NaturalRanking) rankingAlgorithm).getNanStrategy()) {
                 final Set<Integer> nanPositions = new HashSet<Integer>();
-
                 nanPositions.addAll(getNaNPositions(xArray));
                 nanPositions.addAll(getNaNPositions(yArray));
-
                 x = removeValues(xArray, nanPositions);
                 y = removeValues(yArray, nanPositions);
             }
@@ -192,32 +192,25 @@ public class SpearmansCorrelation {
      */
     private RealMatrix rankTransform(final RealMatrix matrix) {
         RealMatrix transformed = null;
-
-        if (rankingAlgorithm instanceof NaturalRanking &&
-                ((NaturalRanking) rankingAlgorithm).getNanStrategy() == NaNStrategy.REMOVED) {
+        if (rankingAlgorithm instanceof NaturalRanking && ((NaturalRanking) rankingAlgorithm).getNanStrategy() == NaNStrategy.REMOVED) {
             final Set<Integer> nanPositions = new HashSet<Integer>();
             for (int i = 0; i < matrix.getColumnDimension(); i++) {
                 nanPositions.addAll(getNaNPositions(matrix.getColumn(i)));
             }
-
             // if we have found NaN values, we have to update the matrix size
             if (!nanPositions.isEmpty()) {
-                transformed = new BlockRealMatrix(matrix.getRowDimension() - nanPositions.size(),
-                                                  matrix.getColumnDimension());
+                transformed = new BlockRealMatrix(matrix.getRowDimension() - nanPositions.size(), matrix.getColumnDimension());
                 for (int i = 0; i < transformed.getColumnDimension(); i++) {
                     transformed.setColumn(i, removeValues(matrix.getColumn(i), nanPositions));
                 }
             }
         }
-
         if (transformed == null) {
             transformed = matrix.copy();
         }
-
         for (int i = 0; i < transformed.getColumnDimension(); i++) {
             transformed.setColumn(i, rankingAlgorithm.rank(transformed.getColumn(i)));
         }
-
         return transformed;
     }
 
@@ -228,7 +221,7 @@ public class SpearmansCorrelation {
      * @return a list of NaN positions in the input array
      */
     private List<Integer> getNaNPositions(final double[] input) {
-        final List<Integer> positions = new ArrayList<Integer>();
+        final List<Integer> positions = new org.apache.commons.collections4.list.TreeList<Integer>();
         for (int i = 0; i < input.length; i++) {
             if (Double.isNaN(input[i])) {
                 positions.add(i);

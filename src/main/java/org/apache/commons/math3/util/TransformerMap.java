@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 
 /**
@@ -32,7 +31,9 @@ import org.apache.commons.math3.exception.MathIllegalArgumentException;
  */
 public class TransformerMap implements NumberTransformer, Serializable {
 
-    /** Serializable version identifier */
+    /**
+     * Serializable version identifier
+     */
     private static final long serialVersionUID = 4605318041528645258L;
 
     /**
@@ -49,7 +50,7 @@ public class TransformerMap implements NumberTransformer, Serializable {
      * Build a map containing only the default transformer.
      */
     public TransformerMap() {
-        map = new HashMap<Class<?>, NumberTransformer>();
+        map = new org.apache.commons.collections4.map.HashedMap<Class<?>, NumberTransformer>();
         defaultTransformer = new DefaultTransformer();
     }
 
@@ -139,7 +140,6 @@ public class TransformerMap implements NumberTransformer, Serializable {
      */
     public double transform(Object o) throws MathIllegalArgumentException {
         double value = Double.NaN;
-
         if (o instanceof Number || o instanceof String) {
             value = defaultTransformer.transform(o);
         } else {
@@ -148,11 +148,12 @@ public class TransformerMap implements NumberTransformer, Serializable {
                 value = trans.transform(o);
             }
         }
-
         return value;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -160,14 +161,14 @@ public class TransformerMap implements NumberTransformer, Serializable {
         }
         if (other instanceof TransformerMap) {
             TransformerMap rhs = (TransformerMap) other;
-            if (! defaultTransformer.equals(rhs.defaultTransformer)) {
+            if (!defaultTransformer.equals(rhs.defaultTransformer)) {
                 return false;
             }
             if (map.size() != rhs.map.size()) {
                 return false;
             }
             for (Map.Entry<Class<?>, NumberTransformer> entry : map.entrySet()) {
-                if (! entry.getValue().equals(rhs.map.get(entry.getKey()))) {
+                if (!entry.getValue().equals(rhs.map.get(entry.getKey()))) {
                     return false;
                 }
             }
@@ -176,7 +177,9 @@ public class TransformerMap implements NumberTransformer, Serializable {
         return false;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int hash = defaultTransformer.hashCode();
@@ -185,5 +188,4 @@ public class TransformerMap implements NumberTransformer, Serializable {
         }
         return hash;
     }
-
 }

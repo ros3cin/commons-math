@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.exception.MathInternalError;
@@ -30,7 +29,8 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.MathArrays;
 
-/** Class holding "compiled" computation rules for derivative structures.
+/**
+ * Class holding "compiled" computation rules for derivative structures.
  * <p>This class implements the computation rules described in Dan Kalman's paper <a
  * href="http://www1.american.edu/cas/mathstat/People/kalman/pdffiles/mmgautodiff.pdf">Doubly
  * Recursive Multivariate Automatic Differentiation</a>, Mathematics Magazine, vol. 75,
@@ -126,118 +126,112 @@ import org.apache.commons.math3.util.MathArrays;
  */
 public class DSCompiler {
 
-    /** Array of all compilers created so far. */
-    private static AtomicReference<DSCompiler[][]> compilers =
-            new AtomicReference<DSCompiler[][]>(null);
+    /**
+     * Array of all compilers created so far.
+     */
+    private static AtomicReference<DSCompiler[][]> compilers = new AtomicReference<DSCompiler[][]>(null);
 
-    /** Number of free parameters. */
+    /**
+     * Number of free parameters.
+     */
     private final int parameters;
 
-    /** Derivation order. */
+    /**
+     * Derivation order.
+     */
     private final int order;
 
-    /** Number of partial derivatives (including the single 0 order derivative element). */
+    /**
+     * Number of partial derivatives (including the single 0 order derivative element).
+     */
     private final int[][] sizes;
 
-    /** Indirection array for partial derivatives. */
+    /**
+     * Indirection array for partial derivatives.
+     */
     private final int[][] derivativesIndirection;
 
-    /** Indirection array of the lower derivative elements. */
+    /**
+     * Indirection array of the lower derivative elements.
+     */
     private final int[] lowerIndirection;
 
-    /** Indirection arrays for multiplication. */
+    /**
+     * Indirection arrays for multiplication.
+     */
     private final int[][][] multIndirection;
 
-    /** Indirection arrays for function composition. */
+    /**
+     * Indirection arrays for function composition.
+     */
     private final int[][][] compIndirection;
 
-    /** Private constructor, reserved for the factory method {@link #getCompiler(int, int)}.
+    /**
+     * Private constructor, reserved for the factory method {@link #getCompiler(int, int)}.
      * @param parameters number of free parameters
      * @param order derivation order
      * @param valueCompiler compiler for the value part
      * @param derivativeCompiler compiler for the derivative part
      * @throws NumberIsTooLargeException if order is too large
      */
-    private DSCompiler(final int parameters, final int order,
-                       final DSCompiler valueCompiler, final DSCompiler derivativeCompiler)
-        throws NumberIsTooLargeException {
-
+    private DSCompiler(final int parameters, final int order, final DSCompiler valueCompiler, final DSCompiler derivativeCompiler) throws NumberIsTooLargeException {
         this.parameters = parameters;
-        this.order      = order;
-        this.sizes      = compileSizes(parameters, order, valueCompiler);
-        this.derivativesIndirection =
-                compileDerivativesIndirection(parameters, order,
-                                              valueCompiler, derivativeCompiler);
-        this.lowerIndirection =
-                compileLowerIndirection(parameters, order,
-                                        valueCompiler, derivativeCompiler);
-        this.multIndirection =
-                compileMultiplicationIndirection(parameters, order,
-                                                 valueCompiler, derivativeCompiler, lowerIndirection);
-        this.compIndirection =
-                compileCompositionIndirection(parameters, order,
-                                              valueCompiler, derivativeCompiler,
-                                              sizes, derivativesIndirection);
-
+        this.order = order;
+        this.sizes = compileSizes(parameters, order, valueCompiler);
+        this.derivativesIndirection = compileDerivativesIndirection(parameters, order, valueCompiler, derivativeCompiler);
+        this.lowerIndirection = compileLowerIndirection(parameters, order, valueCompiler, derivativeCompiler);
+        this.multIndirection = compileMultiplicationIndirection(parameters, order, valueCompiler, derivativeCompiler, lowerIndirection);
+        this.compIndirection = compileCompositionIndirection(parameters, order, valueCompiler, derivativeCompiler, sizes, derivativesIndirection);
     }
 
-    /** Get the compiler for number of free parameters and order.
+    /**
+     * Get the compiler for number of free parameters and order.
      * @param parameters number of free parameters
      * @param order derivation order
      * @return cached rules set
      * @throws NumberIsTooLargeException if order is too large
      */
-    public static DSCompiler getCompiler(int parameters, int order)
-        throws NumberIsTooLargeException {
-
+    public static DSCompiler getCompiler(int parameters, int order) throws NumberIsTooLargeException {
         // get the cached compilers
         final DSCompiler[][] cache = compilers.get();
-        if (cache != null && cache.length > parameters &&
-            cache[parameters].length > order && cache[parameters][order] != null) {
+        if (cache != null && cache.length > parameters && cache[parameters].length > order && cache[parameters][order] != null) {
             // the compiler has already been created
             return cache[parameters][order];
         }
-
         // we need to create more compilers
         final int maxParameters = FastMath.max(parameters, cache == null ? 0 : cache.length);
-        final int maxOrder      = FastMath.max(order,     cache == null ? 0 : cache[0].length);
+        final int maxOrder = FastMath.max(order, cache == null ? 0 : cache[0].length);
         final DSCompiler[][] newCache = new DSCompiler[maxParameters + 1][maxOrder + 1];
-
         if (cache != null) {
             // preserve the already created compilers
             for (int i = 0; i < cache.length; ++i) {
                 System.arraycopy(cache[i], 0, newCache[i], 0, cache[i].length);
             }
         }
-
         // create the array in increasing diagonal order
         for (int diag = 0; diag <= parameters + order; ++diag) {
             for (int o = FastMath.max(0, diag - parameters); o <= FastMath.min(order, diag); ++o) {
                 final int p = diag - o;
                 if (newCache[p][o] == null) {
-                    final DSCompiler valueCompiler      = (p == 0) ? null : newCache[p - 1][o];
+                    final DSCompiler valueCompiler = (p == 0) ? null : newCache[p - 1][o];
                     final DSCompiler derivativeCompiler = (o == 0) ? null : newCache[p][o - 1];
                     newCache[p][o] = new DSCompiler(p, o, valueCompiler, derivativeCompiler);
                 }
             }
         }
-
         // atomically reset the cached compilers array
         compilers.compareAndSet(cache, newCache);
-
         return newCache[parameters][order];
-
     }
 
-    /** Compile the sizes array.
+    /**
+     * Compile the sizes array.
      * @param parameters number of free parameters
      * @param order derivation order
      * @param valueCompiler compiler for the value part
      * @return sizes array
      */
-    private static int[][] compileSizes(final int parameters, final int order,
-                                        final DSCompiler valueCompiler) {
-
+    private static int[][] compileSizes(final int parameters, final int order, final DSCompiler valueCompiler) {
         final int[][] sizes = new int[parameters + 1][order + 1];
         if (parameters == 0) {
             Arrays.fill(sizes[0], 1);
@@ -248,56 +242,41 @@ public class DSCompiler {
                 sizes[parameters][i + 1] = sizes[parameters][i] + sizes[parameters - 1][i + 1];
             }
         }
-
         return sizes;
-
     }
 
-    /** Compile the derivatives indirection array.
+    /**
+     * Compile the derivatives indirection array.
      * @param parameters number of free parameters
      * @param order derivation order
      * @param valueCompiler compiler for the value part
      * @param derivativeCompiler compiler for the derivative part
      * @return derivatives indirection array
      */
-    private static int[][] compileDerivativesIndirection(final int parameters, final int order,
-                                                      final DSCompiler valueCompiler,
-                                                      final DSCompiler derivativeCompiler) {
-
+    private static int[][] compileDerivativesIndirection(final int parameters, final int order, final DSCompiler valueCompiler, final DSCompiler derivativeCompiler) {
         if (parameters == 0 || order == 0) {
             return new int[1][parameters];
         }
-
         final int vSize = valueCompiler.derivativesIndirection.length;
         final int dSize = derivativeCompiler.derivativesIndirection.length;
         final int[][] derivativesIndirection = new int[vSize + dSize][parameters];
-
         // set up the indices for the value part
         for (int i = 0; i < vSize; ++i) {
             // copy the first indices, the last one remaining set to 0
-            System.arraycopy(valueCompiler.derivativesIndirection[i], 0,
-                             derivativesIndirection[i], 0,
-                             parameters - 1);
+            System.arraycopy(valueCompiler.derivativesIndirection[i], 0, derivativesIndirection[i], 0, parameters - 1);
         }
-
         // set up the indices for the derivative part
         for (int i = 0; i < dSize; ++i) {
-
             // copy the indices
-            System.arraycopy(derivativeCompiler.derivativesIndirection[i], 0,
-                             derivativesIndirection[vSize + i], 0,
-                             parameters);
-
+            System.arraycopy(derivativeCompiler.derivativesIndirection[i], 0, derivativesIndirection[vSize + i], 0, parameters);
             // increment the derivation order for the last parameter
             derivativesIndirection[vSize + i][parameters - 1]++;
-
         }
-
         return derivativesIndirection;
-
     }
 
-    /** Compile the lower derivatives indirection array.
+    /**
+     * Compile the lower derivatives indirection array.
      * <p>
      * This indirection array contains the indices of all elements
      * except derivatives for last derivation order.
@@ -308,14 +287,10 @@ public class DSCompiler {
      * @param derivativeCompiler compiler for the derivative part
      * @return lower derivatives indirection array
      */
-    private static int[] compileLowerIndirection(final int parameters, final int order,
-                                              final DSCompiler valueCompiler,
-                                              final DSCompiler derivativeCompiler) {
-
+    private static int[] compileLowerIndirection(final int parameters, final int order, final DSCompiler valueCompiler, final DSCompiler derivativeCompiler) {
         if (parameters == 0 || order <= 1) {
             return new int[] { 0 };
         }
-
         // this is an implementation of definition 6 in Dan Kalman's paper.
         final int vSize = valueCompiler.lowerIndirection.length;
         final int dSize = derivativeCompiler.lowerIndirection.length;
@@ -324,12 +299,11 @@ public class DSCompiler {
         for (int i = 0; i < dSize; ++i) {
             lowerIndirection[vSize + i] = valueCompiler.getSize() + derivativeCompiler.lowerIndirection[i];
         }
-
         return lowerIndirection;
-
     }
 
-    /** Compile the multiplication indirection array.
+    /**
+     * Compile the multiplication indirection array.
      * <p>
      * This indirection array contains the indices of all pairs of elements
      * involved when computing a multiplication. This allows a straightforward
@@ -342,32 +316,24 @@ public class DSCompiler {
      * @param lowerIndirection lower derivatives indirection array
      * @return multiplication indirection array
      */
-    private static int[][][] compileMultiplicationIndirection(final int parameters, final int order,
-                                                           final DSCompiler valueCompiler,
-                                                           final DSCompiler derivativeCompiler,
-                                                           final int[] lowerIndirection) {
-
+    private static int[][][] compileMultiplicationIndirection(final int parameters, final int order, final DSCompiler valueCompiler, final DSCompiler derivativeCompiler, final int[] lowerIndirection) {
         if ((parameters == 0) || (order == 0)) {
             return new int[][][] { { { 1, 0, 0 } } };
         }
-
         // this is an implementation of definition 3 in Dan Kalman's paper.
         final int vSize = valueCompiler.multIndirection.length;
         final int dSize = derivativeCompiler.multIndirection.length;
         final int[][][] multIndirection = new int[vSize + dSize][][];
-
         System.arraycopy(valueCompiler.multIndirection, 0, multIndirection, 0, vSize);
-
         for (int i = 0; i < dSize; ++i) {
             final int[][] dRow = derivativeCompiler.multIndirection[i];
-            List<int[]> row = new ArrayList<int[]>(dRow.length * 2);
+            List<int[]> row = new org.eclipse.collections.impl.list.mutable.FastList<int[]>(dRow.length * 2);
             for (int j = 0; j < dRow.length; ++j) {
                 row.add(new int[] { dRow[j][0], lowerIndirection[dRow[j][1]], vSize + dRow[j][2] });
                 row.add(new int[] { dRow[j][0], vSize + dRow[j][1], lowerIndirection[dRow[j][2]] });
             }
-
             // combine terms with similar derivation orders
-            final List<int[]> combined = new ArrayList<int[]>(row.size());
+            final List<int[]> combined = new org.eclipse.collections.impl.list.mutable.FastList<int[]>(row.size());
             for (int j = 0; j < row.size(); ++j) {
                 final int[] termJ = row.get(j);
                 if (termJ[0] > 0) {
@@ -383,16 +349,13 @@ public class DSCompiler {
                     combined.add(termJ);
                 }
             }
-
             multIndirection[vSize + i] = combined.toArray(new int[combined.size()][]);
-
         }
-
         return multIndirection;
-
     }
 
-    /** Compile the function composition indirection array.
+    /**
+     * Compile the function composition indirection array.
      * <p>
      * This indirection array contains the indices of all sets of elements
      * involved when computing a composition. This allows a straightforward
@@ -407,51 +370,37 @@ public class DSCompiler {
      * @return multiplication indirection array
      * @throws NumberIsTooLargeException if order is too large
      */
-    private static int[][][] compileCompositionIndirection(final int parameters, final int order,
-                                                           final DSCompiler valueCompiler,
-                                                           final DSCompiler derivativeCompiler,
-                                                           final int[][] sizes,
-                                                           final int[][] derivativesIndirection)
-       throws NumberIsTooLargeException {
-
+    private static int[][][] compileCompositionIndirection(final int parameters, final int order, final DSCompiler valueCompiler, final DSCompiler derivativeCompiler, final int[][] sizes, final int[][] derivativesIndirection) throws NumberIsTooLargeException {
         if ((parameters == 0) || (order == 0)) {
             return new int[][][] { { { 1, 0 } } };
         }
-
         final int vSize = valueCompiler.compIndirection.length;
         final int dSize = derivativeCompiler.compIndirection.length;
         final int[][][] compIndirection = new int[vSize + dSize][][];
-
         // the composition rules from the value part can be reused as is
         System.arraycopy(valueCompiler.compIndirection, 0, compIndirection, 0, vSize);
-
-        // the composition rules for the derivative part are deduced by
-        // differentiation the rules from the underlying compiler once
-        // with respect to the parameter this compiler handles and the
         // underlying one did not handle
         for (int i = 0; i < dSize; ++i) {
-            List<int[]> row = new ArrayList<int[]>();
+            List<int[]> row = new org.eclipse.collections.impl.list.mutable.FastList<int[]>();
             for (int[] term : derivativeCompiler.compIndirection[i]) {
-
                 // handle term p * f_k(g(x)) * g_l1(x) * g_l2(x) * ... * g_lp(x)
-
                 // derive the first factor in the term: f_k with respect to new parameter
                 int[] derivedTermF = new int[term.length + 1];
-                derivedTermF[0] = term[0];     // p
-                derivedTermF[1] = term[1] + 1; // f_(k+1)
+                // p
+                derivedTermF[0] = term[0];
+                // f_(k+1)
+                derivedTermF[1] = term[1] + 1;
                 int[] orders = new int[parameters];
                 orders[parameters - 1] = 1;
-                derivedTermF[term.length] = getPartialDerivativeIndex(parameters, order, sizes, orders);  // g_1
+                // g_1
+                derivedTermF[term.length] = getPartialDerivativeIndex(parameters, order, sizes, orders);
                 for (int j = 2; j < term.length; ++j) {
                     // convert the indices as the mapping for the current order
                     // is different from the mapping with one less order
-                    derivedTermF[j] = convertIndex(term[j], parameters,
-                                                   derivativeCompiler.derivativesIndirection,
-                                                   parameters, order, sizes);
+                    derivedTermF[j] = convertIndex(term[j], parameters, derivativeCompiler.derivativesIndirection, parameters, order, sizes);
                 }
                 Arrays.sort(derivedTermF, 2, derivedTermF.length);
                 row.add(derivedTermF);
-
                 // derive the various g_l
                 for (int l = 2; l < term.length; ++l) {
                     int[] derivedTermG = new int[term.length];
@@ -460,9 +409,7 @@ public class DSCompiler {
                     for (int j = 2; j < term.length; ++j) {
                         // convert the indices as the mapping for the current order
                         // is different from the mapping with one less order
-                        derivedTermG[j] = convertIndex(term[j], parameters,
-                                                       derivativeCompiler.derivativesIndirection,
-                                                       parameters, order, sizes);
+                        derivedTermG[j] = convertIndex(term[j], parameters, derivativeCompiler.derivativesIndirection, parameters, order, sizes);
                         if (j == l) {
                             // derive this term
                             System.arraycopy(derivativesIndirection[derivedTermG[j]], 0, orders, 0, parameters);
@@ -473,11 +420,9 @@ public class DSCompiler {
                     Arrays.sort(derivedTermG, 2, derivedTermG.length);
                     row.add(derivedTermG);
                 }
-
             }
-
             // combine terms with similar derivation orders
-            final List<int[]> combined = new ArrayList<int[]>(row.size());
+            final List<int[]> combined = new org.eclipse.collections.impl.list.mutable.FastList<int[]>(row.size());
             for (int j = 0; j < row.size(); ++j) {
                 final int[] termJ = row.get(j);
                 if (termJ[0] > 0) {
@@ -497,16 +442,13 @@ public class DSCompiler {
                     combined.add(termJ);
                 }
             }
-
             compIndirection[vSize + i] = combined.toArray(new int[combined.size()][]);
-
         }
-
         return compIndirection;
-
     }
 
-    /** Get the index of a partial derivative in the array.
+    /**
+     * Get the index of a partial derivative in the array.
      * <p>
      * If all orders are set to 0, then the 0<sup>th</sup> order derivative
      * is returned, which is the value of the function.
@@ -538,19 +480,16 @@ public class DSCompiler {
      * than the instance limits
      * @see #getPartialDerivativeOrders(int)
      */
-    public int getPartialDerivativeIndex(final int ... orders)
-            throws DimensionMismatchException, NumberIsTooLargeException {
-
+    public int getPartialDerivativeIndex(final int... orders) throws DimensionMismatchException, NumberIsTooLargeException {
         // safety check
         if (orders.length != getFreeParameters()) {
             throw new DimensionMismatchException(orders.length, getFreeParameters());
         }
-
         return getPartialDerivativeIndex(parameters, order, sizes, orders);
-
     }
 
-    /** Get the index of a partial derivative in an array.
+    /**
+     * Get the index of a partial derivative in an array.
      * @param parameters number of free parameters
      * @param order derivation order
      * @param sizes sizes array
@@ -560,40 +499,32 @@ public class DSCompiler {
      * @exception NumberIsTooLargeException if sum of derivation orders is larger
      * than the instance limits
      */
-    private static int getPartialDerivativeIndex(final int parameters, final int order,
-                                                 final int[][] sizes, final int ... orders)
-        throws NumberIsTooLargeException {
-
+    private static int getPartialDerivativeIndex(final int parameters, final int order, final int[][] sizes, final int... orders) throws NumberIsTooLargeException {
         // the value is obtained by diving into the recursive Dan Kalman's structure
         // this is theorem 2 of his paper, with recursion replaced by iteration
-        int index     = 0;
-        int m         = order;
+        int index = 0;
+        int m = order;
         int ordersSum = 0;
         for (int i = parameters - 1; i >= 0; --i) {
-
             // derivative order for current free parameter
             int derivativeOrder = orders[i];
-
             // safety check
             ordersSum += derivativeOrder;
             if (ordersSum > order) {
                 throw new NumberIsTooLargeException(ordersSum, order, true);
             }
-
             while (derivativeOrder-- > 0) {
                 // as long as we differentiate according to current free parameter,
                 // we have to skip the value part and dive into the derivative part
                 // so we add the size of the value part to the base index
                 index += sizes[i][m--];
             }
-
         }
-
         return index;
-
     }
 
-    /** Convert an index from one (parameters, order) structure to another.
+    /**
+     * Convert an index from one (parameters, order) structure to another.
      * @param index index of a partial derivative in source derivative structure
      * @param srcP number of free parameters in source derivative structure
      * @param srcDerivativesIndirection derivatives indirection array for the source
@@ -605,16 +536,14 @@ public class DSCompiler {
      * in destination derivative structure
      * @throws NumberIsTooLargeException if order is too large
      */
-    private static int convertIndex(final int index,
-                                    final int srcP, final int[][] srcDerivativesIndirection,
-                                    final int destP, final int destO, final int[][] destSizes)
-        throws NumberIsTooLargeException {
+    private static int convertIndex(final int index, final int srcP, final int[][] srcDerivativesIndirection, final int destP, final int destO, final int[][] destSizes) throws NumberIsTooLargeException {
         int[] orders = new int[destP];
         System.arraycopy(srcDerivativesIndirection[index], 0, orders, 0, FastMath.min(srcP, destP));
         return getPartialDerivativeIndex(destP, destO, destSizes, orders);
     }
 
-    /** Get the derivation orders for a specific index in the array.
+    /**
+     * Get the derivation orders for a specific index in the array.
      * <p>
      * This method is the inverse of {@link #getPartialDerivativeIndex(int...)}.
      * </p>
@@ -626,21 +555,24 @@ public class DSCompiler {
         return derivativesIndirection[index];
     }
 
-    /** Get the number of free parameters.
+    /**
+     * Get the number of free parameters.
      * @return number of free parameters
      */
     public int getFreeParameters() {
         return parameters;
     }
 
-    /** Get the derivation order.
+    /**
+     * Get the derivation order.
      * @return derivation order
      */
     public int getOrder() {
         return order;
     }
 
-    /** Get the array size required for holding partial derivatives data.
+    /**
+     * Get the array size required for holding partial derivatives data.
      * <p>
      * This number includes the single 0 order derivative element, which is
      * guaranteed to be stored in the first element of the array.
@@ -651,7 +583,8 @@ public class DSCompiler {
         return sizes[parameters][order];
     }
 
-    /** Compute linear combination.
+    /**
+     * Compute linear combination.
      * The derivative structure built will be a1 * ds1 + a2 * ds2
      * @param a1 first scale factor
      * @param c1 first base (unscaled) component
@@ -663,16 +596,14 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void linearCombination(final double a1, final double[] c1, final int offset1,
-                                  final double a2, final double[] c2, final int offset2,
-                                  final double[] result, final int resultOffset) {
+    public void linearCombination(final double a1, final double[] c1, final int offset1, final double a2, final double[] c2, final int offset2, final double[] result, final int resultOffset) {
         for (int i = 0; i < getSize(); ++i) {
-            result[resultOffset + i] =
-                    MathArrays.linearCombination(a1, c1[offset1 + i], a2, c2[offset2 + i]);
+            result[resultOffset + i] = MathArrays.linearCombination(a1, c1[offset1 + i], a2, c2[offset2 + i]);
         }
     }
 
-    /** Compute linear combination.
+    /**
+     * Compute linear combination.
      * The derivative structure built will be a1 * ds1 + a2 * ds2 + a3 * ds3 + a4 * ds4
      * @param a1 first scale factor
      * @param c1 first base (unscaled) component
@@ -687,19 +618,14 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void linearCombination(final double a1, final double[] c1, final int offset1,
-                                  final double a2, final double[] c2, final int offset2,
-                                  final double a3, final double[] c3, final int offset3,
-                                  final double[] result, final int resultOffset) {
+    public void linearCombination(final double a1, final double[] c1, final int offset1, final double a2, final double[] c2, final int offset2, final double a3, final double[] c3, final int offset3, final double[] result, final int resultOffset) {
         for (int i = 0; i < getSize(); ++i) {
-            result[resultOffset + i] =
-                    MathArrays.linearCombination(a1, c1[offset1 + i],
-                                                 a2, c2[offset2 + i],
-                                                 a3, c3[offset3 + i]);
+            result[resultOffset + i] = MathArrays.linearCombination(a1, c1[offset1 + i], a2, c2[offset2 + i], a3, c3[offset3 + i]);
         }
     }
 
-    /** Compute linear combination.
+    /**
+     * Compute linear combination.
      * The derivative structure built will be a1 * ds1 + a2 * ds2 + a3 * ds3 + a4 * ds4
      * @param a1 first scale factor
      * @param c1 first base (unscaled) component
@@ -717,21 +643,14 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void linearCombination(final double a1, final double[] c1, final int offset1,
-                                  final double a2, final double[] c2, final int offset2,
-                                  final double a3, final double[] c3, final int offset3,
-                                  final double a4, final double[] c4, final int offset4,
-                                  final double[] result, final int resultOffset) {
+    public void linearCombination(final double a1, final double[] c1, final int offset1, final double a2, final double[] c2, final int offset2, final double a3, final double[] c3, final int offset3, final double a4, final double[] c4, final int offset4, final double[] result, final int resultOffset) {
         for (int i = 0; i < getSize(); ++i) {
-            result[resultOffset + i] =
-                    MathArrays.linearCombination(a1, c1[offset1 + i],
-                                                 a2, c2[offset2 + i],
-                                                 a3, c3[offset3 + i],
-                                                 a4, c4[offset4 + i]);
+            result[resultOffset + i] = MathArrays.linearCombination(a1, c1[offset1 + i], a2, c2[offset2 + i], a3, c3[offset3 + i], a4, c4[offset4 + i]);
         }
     }
 
-    /** Perform addition of two derivative structures.
+    /**
+     * Perform addition of two derivative structures.
      * @param lhs array holding left hand side of addition
      * @param lhsOffset offset of the left hand side in its array
      * @param rhs array right hand side of addition
@@ -740,14 +659,14 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void add(final double[] lhs, final int lhsOffset,
-                    final double[] rhs, final int rhsOffset,
-                    final double[] result, final int resultOffset) {
+    public void add(final double[] lhs, final int lhsOffset, final double[] rhs, final int rhsOffset, final double[] result, final int resultOffset) {
         for (int i = 0; i < getSize(); ++i) {
             result[resultOffset + i] = lhs[lhsOffset + i] + rhs[rhsOffset + i];
         }
     }
-    /** Perform subtraction of two derivative structures.
+
+    /**
+     * Perform subtraction of two derivative structures.
      * @param lhs array holding left hand side of subtraction
      * @param lhsOffset offset of the left hand side in its array
      * @param rhs array right hand side of subtraction
@@ -756,15 +675,14 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void subtract(final double[] lhs, final int lhsOffset,
-                         final double[] rhs, final int rhsOffset,
-                         final double[] result, final int resultOffset) {
+    public void subtract(final double[] lhs, final int lhsOffset, final double[] rhs, final int rhsOffset, final double[] result, final int resultOffset) {
         for (int i = 0; i < getSize(); ++i) {
             result[resultOffset + i] = lhs[lhsOffset + i] - rhs[rhsOffset + i];
         }
     }
 
-    /** Perform multiplication of two derivative structures.
+    /**
+     * Perform multiplication of two derivative structures.
      * @param lhs array holding left hand side of multiplication
      * @param lhsOffset offset of the left hand side in its array
      * @param rhs array right hand side of multiplication
@@ -774,22 +692,19 @@ public class DSCompiler {
      * the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void multiply(final double[] lhs, final int lhsOffset,
-                         final double[] rhs, final int rhsOffset,
-                         final double[] result, final int resultOffset) {
+    public void multiply(final double[] lhs, final int lhsOffset, final double[] rhs, final int rhsOffset, final double[] result, final int resultOffset) {
         for (int i = 0; i < multIndirection.length; ++i) {
             final int[][] mappingI = multIndirection[i];
             double r = 0;
             for (int j = 0; j < mappingI.length; ++j) {
-                r += mappingI[j][0] *
-                     lhs[lhsOffset + mappingI[j][1]] *
-                     rhs[rhsOffset + mappingI[j][2]];
+                r += mappingI[j][0] * lhs[lhsOffset + mappingI[j][1]] * rhs[rhsOffset + mappingI[j][2]];
             }
             result[resultOffset + i] = r;
         }
     }
 
-    /** Perform division of two derivative structures.
+    /**
+     * Perform division of two derivative structures.
      * @param lhs array holding left hand side of division
      * @param lhsOffset offset of the left hand side in its array
      * @param rhs array right hand side of division
@@ -799,15 +714,14 @@ public class DSCompiler {
      * the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void divide(final double[] lhs, final int lhsOffset,
-                       final double[] rhs, final int rhsOffset,
-                       final double[] result, final int resultOffset) {
+    public void divide(final double[] lhs, final int lhsOffset, final double[] rhs, final int rhsOffset, final double[] result, final int resultOffset) {
         final double[] reciprocal = new double[getSize()];
         pow(rhs, lhsOffset, -1, reciprocal, 0);
         multiply(lhs, lhsOffset, reciprocal, 0, result, resultOffset);
     }
 
-    /** Perform remainder of two derivative structures.
+    /**
+     * Perform remainder of two derivative structures.
      * @param lhs array holding left hand side of remainder
      * @param lhsOffset offset of the left hand side in its array
      * @param rhs array right hand side of remainder
@@ -816,25 +730,20 @@ public class DSCompiler {
      * one of the input arrays)
      * @param resultOffset offset of the result in its array
      */
-    public void remainder(final double[] lhs, final int lhsOffset,
-                          final double[] rhs, final int rhsOffset,
-                          final double[] result, final int resultOffset) {
-
+    public void remainder(final double[] lhs, final int lhsOffset, final double[] rhs, final int rhsOffset, final double[] result, final int resultOffset) {
         // compute k such that lhs % rhs = lhs - k rhs
         final double rem = FastMath.IEEEremainder(lhs[lhsOffset], rhs[rhsOffset]);
-        final double k   = FastMath.rint((lhs[lhsOffset] - rem) / rhs[rhsOffset]);
-
+        final double k = FastMath.rint((lhs[lhsOffset] - rem) / rhs[rhsOffset]);
         // set up value
         result[resultOffset] = rem;
-
         // set up partial derivatives
         for (int i = 1; i < getSize(); ++i) {
             result[resultOffset + i] = lhs[lhsOffset + i] - k * rhs[rhsOffset + i];
         }
-
     }
 
-    /** Compute power of a double to a derivative structure.
+    /**
+     * Compute power of a double to a derivative structure.
      * @param a number to exponentiate
      * @param operand array holding the power
      * @param operandOffset offset of the power in its array
@@ -844,10 +753,7 @@ public class DSCompiler {
      * @param resultOffset offset of the result in its array
      * @since 3.3
      */
-    public void pow(final double a,
-                    final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void pow(final double a, final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         // [a^x, ln(a) a^x, ln(a)^2 a^x,, ln(a)^3 a^x, ... ]
         final double[] function = new double[1 + order];
@@ -869,14 +775,12 @@ public class DSCompiler {
                 function[i] = lnA * function[i - 1];
             }
         }
-
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute power of a derivative structure.
+    /**
+     * Compute power of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param p power to apply
@@ -885,9 +789,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void pow(final double[] operand, final int operandOffset, final double p,
-                    final double[] result, final int resultOffset) {
-
+    public void pow(final double[] operand, final int operandOffset, final double p, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         // [x^p, px^(p-1), p(p-1)x^(p-2), ... ]
         double[] function = new double[1 + order];
@@ -902,13 +804,12 @@ public class DSCompiler {
             function[i] *= coefficient;
             coefficient *= p - i;
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute integer power of a derivative structure.
+    /**
+     * Compute integer power of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param n power to apply
@@ -917,20 +818,16 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void pow(final double[] operand, final int operandOffset, final int n,
-                    final double[] result, final int resultOffset) {
-
+    public void pow(final double[] operand, final int operandOffset, final int n, final double[] result, final int resultOffset) {
         if (n == 0) {
             // special case, x^0 = 1 for all x
             result[resultOffset] = 1.0;
             Arrays.fill(result, resultOffset + 1, resultOffset + getSize(), 0);
             return;
         }
-
         // create the power function value and derivatives
         // [x^n, nx^(n-1), n(n-1)x^(n-2), ... ]
         double[] function = new double[1 + order];
-
         if (n > 0) {
             // strictly positive power
             final int maxOrder = FastMath.min(order, n);
@@ -949,19 +846,17 @@ public class DSCompiler {
                 xk *= inv;
             }
         }
-
         double coefficient = n;
         for (int i = 1; i <= order; ++i) {
             function[i] *= coefficient;
             coefficient *= n - i;
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute power of a derivative structure.
+    /**
+     * Compute power of a derivative structure.
      * @param x array holding the base
      * @param xOffset offset of the base in its array
      * @param y array holding the exponent
@@ -971,9 +866,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void pow(final double[] x, final int xOffset,
-                    final double[] y, final int yOffset,
-                    final double[] result, final int resultOffset) {
+    public void pow(final double[] x, final int xOffset, final double[] y, final int yOffset, final double[] result, final int resultOffset) {
         final double[] logX = new double[getSize()];
         log(x, xOffset, logX, 0);
         final double[] yLogX = new double[getSize()];
@@ -981,7 +874,8 @@ public class DSCompiler {
         exp(yLogX, 0, result, resultOffset);
     }
 
-    /** Compute n<sup>th</sup> root of a derivative structure.
+    /**
+     * Compute n<sup>th</sup> root of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param n order of the root
@@ -990,22 +884,20 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void rootN(final double[] operand, final int operandOffset, final int n,
-                      final double[] result, final int resultOffset) {
-
+    public void rootN(final double[] operand, final int operandOffset, final int n, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         // [x^(1/n), (1/n)x^((1/n)-1), (1-n)/n^2x^((1/n)-2), ... ]
         double[] function = new double[1 + order];
         double xk;
         if (n == 2) {
             function[0] = FastMath.sqrt(operand[operandOffset]);
-            xk          = 0.5 / function[0];
+            xk = 0.5 / function[0];
         } else if (n == 3) {
             function[0] = FastMath.cbrt(operand[operandOffset]);
-            xk          = 1.0 / (3.0 * function[0] * function[0]);
+            xk = 1.0 / (3.0 * function[0] * function[0]);
         } else {
             function[0] = FastMath.pow(operand[operandOffset], 1.0 / n);
-            xk          = 1.0 / (n * FastMath.pow(function[0], n - 1));
+            xk = 1.0 / (n * FastMath.pow(function[0], n - 1));
         }
         final double nReciprocal = 1.0 / n;
         final double xReciprocal = 1.0 / operand[operandOffset];
@@ -1013,13 +905,12 @@ public class DSCompiler {
             function[i] = xk;
             xk *= xReciprocal * (nReciprocal - i);
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute exponential of a derivative structure.
+    /**
+     * Compute exponential of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1027,19 +918,16 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void exp(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void exp(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         Arrays.fill(function, FastMath.exp(operand[operandOffset]));
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute exp(x) - 1 of a derivative structure.
+    /**
+     * Compute exp(x) - 1 of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1047,20 +935,17 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void expm1(final double[] operand, final int operandOffset,
-                      final double[] result, final int resultOffset) {
-
+    public void expm1(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.expm1(operand[operandOffset]);
         Arrays.fill(function, 1, 1 + order, FastMath.exp(operand[operandOffset]));
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute natural logarithm of a derivative structure.
+    /**
+     * Compute natural logarithm of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1068,81 +953,72 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void log(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void log(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.log(operand[operandOffset]);
         if (order > 0) {
             double inv = 1.0 / operand[operandOffset];
-            double xk  = inv;
+            double xk = inv;
             for (int i = 1; i <= order; ++i) {
                 function[i] = xk;
                 xk *= -i * inv;
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Computes shifted logarithm of a derivative structure.
+    /**
+     * Computes shifted logarithm of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
      * shifted logarithm the result array <em>cannot</em> be the input array)
      * @param resultOffset offset of the result in its array
      */
-    public void log1p(final double[] operand, final int operandOffset,
-                      final double[] result, final int resultOffset) {
-
+    public void log1p(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.log1p(operand[operandOffset]);
         if (order > 0) {
             double inv = 1.0 / (1.0 + operand[operandOffset]);
-            double xk  = inv;
+            double xk = inv;
             for (int i = 1; i <= order; ++i) {
                 function[i] = xk;
                 xk *= -i * inv;
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Computes base 10 logarithm of a derivative structure.
+    /**
+     * Computes base 10 logarithm of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
      * base 10 logarithm the result array <em>cannot</em> be the input array)
      * @param resultOffset offset of the result in its array
      */
-    public void log10(final double[] operand, final int operandOffset,
-                      final double[] result, final int resultOffset) {
-
+    public void log10(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.log10(operand[operandOffset]);
         if (order > 0) {
             double inv = 1.0 / operand[operandOffset];
-            double xk  = inv / FastMath.log(10.0);
+            double xk = inv / FastMath.log(10.0);
             for (int i = 1; i <= order; ++i) {
                 function[i] = xk;
                 xk *= -i * inv;
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute cosine of a derivative structure.
+    /**
+     * Compute cosine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1150,9 +1026,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void cos(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void cos(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.cos(operand[operandOffset]);
@@ -1162,13 +1036,12 @@ public class DSCompiler {
                 function[i] = -function[i - 2];
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute sine of a derivative structure.
+    /**
+     * Compute sine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1176,9 +1049,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void sin(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void sin(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.sin(operand[operandOffset]);
@@ -1188,13 +1059,12 @@ public class DSCompiler {
                 function[i] = -function[i - 2];
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute tangent of a derivative structure.
+    /**
+     * Compute tangent of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1202,16 +1072,12 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void tan(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void tan(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         final double[] function = new double[1 + order];
         final double t = FastMath.tan(operand[operandOffset]);
         function[0] = t;
-
         if (order > 0) {
-
             // the nth order derivative of tan has the form:
             // dn(tan(x)/dxn = P_n(tan(x))
             // where P_n(t) is a degree n+1 polynomial with same parity as n+1
@@ -1223,7 +1089,6 @@ public class DSCompiler {
             p[1] = 1;
             final double t2 = t * t;
             for (int n = 1; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(t)
                 double v = 0;
                 p[n + 1] = n * p[n];
@@ -1238,18 +1103,15 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= t;
                 }
-
                 function[n] = v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute arc cosine of a derivative structure.
+    /**
+     * Compute arc cosine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1257,9 +1119,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void acos(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void acos(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1274,12 +1134,11 @@ public class DSCompiler {
             // as per polynomial parity, we can store coefficients of both P_(n-1) and P_n in the same array
             final double[] p = new double[order];
             p[0] = -1;
-            final double x2    = x * x;
-            final double f     = 1.0 / (1 - x2);
+            final double x2 = x * x;
+            final double f = 1.0 / (1 - x2);
             double coeff = FastMath.sqrt(f);
             function[1] = coeff * p[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(x)
                 double v = 0;
                 p[n - 1] = (n - 1) * p[n - 2];
@@ -1294,19 +1153,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute arc sine of a derivative structure.
+    /**
+     * Compute arc sine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1314,9 +1170,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void asin(final double[] operand, final int operandOffset,
-                    final double[] result, final int resultOffset) {
-
+    public void asin(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1331,12 +1185,11 @@ public class DSCompiler {
             // as per polynomial parity, we can store coefficients of both P_(n-1) and P_n in the same array
             final double[] p = new double[order];
             p[0] = 1;
-            final double x2    = x * x;
-            final double f     = 1.0 / (1 - x2);
+            final double x2 = x * x;
+            final double f = 1.0 / (1 - x2);
             double coeff = FastMath.sqrt(f);
             function[1] = coeff * p[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(x)
                 double v = 0;
                 p[n - 1] = (n - 1) * p[n - 2];
@@ -1351,19 +1204,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute arc tangent of a derivative structure.
+    /**
+     * Compute arc tangent of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1371,9 +1221,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void atan(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void atan(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1388,12 +1236,11 @@ public class DSCompiler {
             // as per polynomial parity, we can store coefficients of both Q_(n-1) and Q_n in the same array
             final double[] q = new double[order];
             q[0] = 1;
-            final double x2    = x * x;
-            final double f     = 1.0 / (1 + x2);
+            final double x2 = x * x;
+            final double f = 1.0 / (1 + x2);
             double coeff = f;
             function[1] = coeff * q[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial Q_n(x)
                 double v = 0;
                 q[n - 1] = -n * q[n - 2];
@@ -1408,19 +1255,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute two arguments arc tangent of a derivative structure.
+    /**
+     * Compute two arguments arc tangent of a derivative structure.
      * @param y array holding the first operand
      * @param yOffset offset of the first operand in its array
      * @param x array holding the second operand
@@ -1430,48 +1274,51 @@ public class DSCompiler {
      * be the input array)
      * @param resultOffset offset of the result in its array
      */
-    public void atan2(final double[] y, final int yOffset,
-                      final double[] x, final int xOffset,
-                      final double[] result, final int resultOffset) {
-
+    public void atan2(final double[] y, final int yOffset, final double[] x, final int xOffset, final double[] result, final int resultOffset) {
         // compute r = sqrt(x^2+y^2)
         double[] tmp1 = new double[getSize()];
-        multiply(x, xOffset, x, xOffset, tmp1, 0);      // x^2
+        // x^2
+        multiply(x, xOffset, x, xOffset, tmp1, 0);
         double[] tmp2 = new double[getSize()];
-        multiply(y, yOffset, y, yOffset, tmp2, 0);      // y^2
-        add(tmp1, 0, tmp2, 0, tmp2, 0);                 // x^2 + y^2
-        rootN(tmp2, 0, 2, tmp1, 0);                     // r = sqrt(x^2 + y^2)
-
+        // y^2
+        multiply(y, yOffset, y, yOffset, tmp2, 0);
+        // x^2 + y^2
+        add(tmp1, 0, tmp2, 0, tmp2, 0);
+        // r = sqrt(x^2 + y^2)
+        rootN(tmp2, 0, 2, tmp1, 0);
         if (x[xOffset] >= 0) {
-
             // compute atan2(y, x) = 2 atan(y / (r + x))
-            add(tmp1, 0, x, xOffset, tmp2, 0);          // r + x
-            divide(y, yOffset, tmp2, 0, tmp1, 0);       // y /(r + x)
-            atan(tmp1, 0, tmp2, 0);                     // atan(y / (r + x))
+            // r + x
+            add(tmp1, 0, x, xOffset, tmp2, 0);
+            // y /(r + x)
+            divide(y, yOffset, tmp2, 0, tmp1, 0);
+            // atan(y / (r + x))
+            atan(tmp1, 0, tmp2, 0);
             for (int i = 0; i < tmp2.length; ++i) {
-                result[resultOffset + i] = 2 * tmp2[i]; // 2 * atan(y / (r + x))
+                // 2 * atan(y / (r + x))
+                result[resultOffset + i] = 2 * tmp2[i];
             }
-
         } else {
-
             // compute atan2(y, x) = +/- pi - 2 atan(y / (r - x))
-            subtract(tmp1, 0, x, xOffset, tmp2, 0);     // r - x
-            divide(y, yOffset, tmp2, 0, tmp1, 0);       // y /(r - x)
-            atan(tmp1, 0, tmp2, 0);                     // atan(y / (r - x))
-            result[resultOffset] =
-                    ((tmp2[0] <= 0) ? -FastMath.PI : FastMath.PI) - 2 * tmp2[0]; // +/-pi - 2 * atan(y / (r - x))
+            // r - x
+            subtract(tmp1, 0, x, xOffset, tmp2, 0);
+            // y /(r - x)
+            divide(y, yOffset, tmp2, 0, tmp1, 0);
+            // atan(y / (r - x))
+            atan(tmp1, 0, tmp2, 0);
+            result[resultOffset] = // +/-pi - 2 * atan(y / (r - x))
+            ((tmp2[0] <= 0) ? -FastMath.PI : FastMath.PI) - 2 * tmp2[0];
             for (int i = 1; i < tmp2.length; ++i) {
-                result[resultOffset + i] = -2 * tmp2[i]; // +/-pi - 2 * atan(y / (r - x))
+                // +/-pi - 2 * atan(y / (r - x))
+                result[resultOffset + i] = -2 * tmp2[i];
             }
-
         }
-
         // fix value to take special cases (+0/+0, +0/-0, -0/+0, -0/-0, +/-infinity) correctly
         result[resultOffset] = FastMath.atan2(y[yOffset], x[xOffset]);
-
     }
 
-    /** Compute hyperbolic cosine of a derivative structure.
+    /**
+     * Compute hyperbolic cosine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1479,9 +1326,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void cosh(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void cosh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.cosh(operand[operandOffset]);
@@ -1491,13 +1336,12 @@ public class DSCompiler {
                 function[i] = function[i - 2];
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute hyperbolic sine of a derivative structure.
+    /**
+     * Compute hyperbolic sine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1505,9 +1349,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void sinh(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void sinh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         function[0] = FastMath.sinh(operand[operandOffset]);
@@ -1517,13 +1359,12 @@ public class DSCompiler {
                 function[i] = function[i - 2];
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute hyperbolic tangent of a derivative structure.
+    /**
+     * Compute hyperbolic tangent of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1531,16 +1372,12 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void tanh(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void tanh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         final double[] function = new double[1 + order];
         final double t = FastMath.tanh(operand[operandOffset]);
         function[0] = t;
-
         if (order > 0) {
-
             // the nth order derivative of tanh has the form:
             // dn(tanh(x)/dxn = P_n(tanh(x))
             // where P_n(t) is a degree n+1 polynomial with same parity as n+1
@@ -1552,7 +1389,6 @@ public class DSCompiler {
             p[1] = 1;
             final double t2 = t * t;
             for (int n = 1; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(t)
                 double v = 0;
                 p[n + 1] = -n * p[n];
@@ -1567,18 +1403,15 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= t;
                 }
-
                 function[n] = v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute inverse hyperbolic cosine of a derivative structure.
+    /**
+     * Compute inverse hyperbolic cosine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1586,9 +1419,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void acosh(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void acosh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1603,12 +1434,11 @@ public class DSCompiler {
             // as per polynomial parity, we can store coefficients of both P_(n-1) and P_n in the same array
             final double[] p = new double[order];
             p[0] = 1;
-            final double x2  = x * x;
-            final double f   = 1.0 / (x2 - 1);
+            final double x2 = x * x;
+            final double f = 1.0 / (x2 - 1);
             double coeff = FastMath.sqrt(f);
             function[1] = coeff * p[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(x)
                 double v = 0;
                 p[n - 1] = (1 - n) * p[n - 2];
@@ -1623,19 +1453,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute inverse hyperbolic sine of a derivative structure.
+    /**
+     * Compute inverse hyperbolic sine of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1643,9 +1470,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void asinh(final double[] operand, final int operandOffset,
-                     final double[] result, final int resultOffset) {
-
+    public void asinh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1660,12 +1485,11 @@ public class DSCompiler {
             // as per polynomial parity, we can store coefficients of both P_(n-1) and P_n in the same array
             final double[] p = new double[order];
             p[0] = 1;
-            final double x2    = x * x;
-            final double f     = 1.0 / (1 + x2);
+            final double x2 = x * x;
+            final double f = 1.0 / (1 + x2);
             double coeff = FastMath.sqrt(f);
             function[1] = coeff * p[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial P_n(x)
                 double v = 0;
                 p[n - 1] = (1 - n) * p[n - 2];
@@ -1680,19 +1504,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute inverse hyperbolic tangent of a derivative structure.
+    /**
+     * Compute inverse hyperbolic tangent of a derivative structure.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param result array where result must be stored (for
@@ -1700,9 +1521,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void atanh(final double[] operand, final int operandOffset,
-                      final double[] result, final int resultOffset) {
-
+    public void atanh(final double[] operand, final int operandOffset, final double[] result, final int resultOffset) {
         // create the function value and derivatives
         double[] function = new double[1 + order];
         final double x = operand[operandOffset];
@@ -1718,11 +1537,10 @@ public class DSCompiler {
             final double[] q = new double[order];
             q[0] = 1;
             final double x2 = x * x;
-            final double f  = 1.0 / (1 - x2);
+            final double f = 1.0 / (1 - x2);
             double coeff = f;
             function[1] = coeff * q[0];
             for (int n = 2; n <= order; ++n) {
-
                 // update and evaluate polynomial Q_n(x)
                 double v = 0;
                 q[n - 1] = n * q[n - 2];
@@ -1737,19 +1555,16 @@ public class DSCompiler {
                 if ((n & 0x1) == 0) {
                     v *= x;
                 }
-
                 coeff *= f;
                 function[n] = coeff * v;
-
             }
         }
-
         // apply function composition
         compose(operand, operandOffset, function, result, resultOffset);
-
     }
 
-    /** Compute composition of a derivative structure by a function.
+    /**
+     * Compute composition of a derivative structure by a function.
      * @param operand array holding the operand
      * @param operandOffset offset of the operand in its array
      * @param f array of value and derivatives of the function at
@@ -1759,8 +1574,7 @@ public class DSCompiler {
      * array)
      * @param resultOffset offset of the result in its array
      */
-    public void compose(final double[] operand, final int operandOffset, final double[] f,
-                        final double[] result, final int resultOffset) {
+    public void compose(final double[] operand, final int operandOffset, final double[] f, final double[] result, final int resultOffset) {
         for (int i = 0; i < compIndirection.length; ++i) {
             final int[][] mappingI = compIndirection[i];
             double r = 0;
@@ -1776,15 +1590,15 @@ public class DSCompiler {
         }
     }
 
-    /** Evaluate Taylor expansion of a derivative structure.
+    /**
+     * Evaluate Taylor expansion of a derivative structure.
      * @param ds array holding the derivative structure
      * @param dsOffset offset of the derivative structure in its array
      * @param delta parameters offsets (&Delta;x, &Delta;y, ...)
      * @return value of the Taylor expansion at x + &Delta;x, y + &Delta;y, ...
      * @throws MathArithmeticException if factorials becomes too large
      */
-    public double taylor(final double[] ds, final int dsOffset, final double ... delta)
-       throws MathArithmeticException {
+    public double taylor(final double[] ds, final int dsOffset, final double... delta) throws MathArithmeticException {
         double value = 0;
         for (int i = getSize() - 1; i >= 0; --i) {
             final int[] orders = getPartialDerivativeOrders(i);
@@ -1792,8 +1606,7 @@ public class DSCompiler {
             for (int k = 0; k < orders.length; ++k) {
                 if (orders[k] > 0) {
                     try {
-                        term *= FastMath.pow(delta[k], orders[k]) /
-                        CombinatoricsUtils.factorial(orders[k]);
+                        term *= FastMath.pow(delta[k], orders[k]) / CombinatoricsUtils.factorial(orders[k]);
                     } catch (NotPositiveException e) {
                         // this cannot happen
                         throw new MathInternalError(e);
@@ -1805,12 +1618,12 @@ public class DSCompiler {
         return value;
     }
 
-    /** Check rules set compatibility.
+    /**
+     * Check rules set compatibility.
      * @param compiler other compiler to check against instance
      * @exception DimensionMismatchException if number of free parameters or orders are inconsistent
      */
-    public void checkCompatibility(final DSCompiler compiler)
-            throws DimensionMismatchException {
+    public void checkCompatibility(final DSCompiler compiler) throws DimensionMismatchException {
         if (parameters != compiler.parameters) {
             throw new DimensionMismatchException(parameters, compiler.parameters);
         }
@@ -1818,5 +1631,4 @@ public class DSCompiler {
             throw new DimensionMismatchException(order, compiler.order);
         }
     }
-
 }

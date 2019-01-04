@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
@@ -35,10 +34,14 @@ import org.apache.commons.math3.exception.NumberIsTooSmallException;
  */
 public abstract class ListPopulation implements Population {
 
-    /** List of chromosomes */
+    /**
+     * List of chromosomes
+     */
     private List<Chromosome> chromosomes;
 
-    /** maximal size of the population */
+    /**
+     * maximal size of the population
+     */
     private int populationLimit;
 
     /**
@@ -48,7 +51,7 @@ public abstract class ListPopulation implements Population {
      * @throws NotPositiveException if the population limit is not a positive number (&lt; 1)
      */
     public ListPopulation(final int populationLimit) throws NotPositiveException {
-        this(Collections.<Chromosome> emptyList(), populationLimit);
+        this(Collections.<Chromosome>emptyList(), populationLimit);
     }
 
     /**
@@ -62,9 +65,7 @@ public abstract class ListPopulation implements Population {
      * @throws NotPositiveException if the population limit is not a positive number (&lt; 1)
      * @throws NumberIsTooLargeException if the list of chromosomes exceeds the population limit
      */
-    public ListPopulation(final List<Chromosome> chromosomes, final int populationLimit)
-        throws NullArgumentException, NotPositiveException, NumberIsTooLargeException {
-
+    public ListPopulation(final List<Chromosome> chromosomes, final int populationLimit) throws NullArgumentException, NotPositiveException, NumberIsTooLargeException {
         if (chromosomes == null) {
             throw new NullArgumentException();
         }
@@ -72,11 +73,10 @@ public abstract class ListPopulation implements Population {
             throw new NotPositiveException(LocalizedFormats.POPULATION_LIMIT_NOT_POSITIVE, populationLimit);
         }
         if (chromosomes.size() > populationLimit) {
-            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE,
-                                                chromosomes.size(), populationLimit, false);
+            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE, chromosomes.size(), populationLimit, false);
         }
         this.populationLimit = populationLimit;
-        this.chromosomes = new ArrayList<Chromosome>(populationLimit);
+        this.chromosomes = new org.eclipse.collections.impl.list.mutable.FastList<Chromosome>(populationLimit);
         this.chromosomes.addAll(chromosomes);
     }
 
@@ -92,15 +92,12 @@ public abstract class ListPopulation implements Population {
      * @deprecated use {@link #addChromosomes(Collection)} instead
      */
     @Deprecated
-    public void setChromosomes(final List<Chromosome> chromosomes)
-        throws NullArgumentException, NumberIsTooLargeException {
-
+    public void setChromosomes(final List<Chromosome> chromosomes) throws NullArgumentException, NumberIsTooLargeException {
         if (chromosomes == null) {
             throw new NullArgumentException();
         }
         if (chromosomes.size() > populationLimit) {
-            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE,
-                                                chromosomes.size(), populationLimit, false);
+            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE, chromosomes.size(), populationLimit, false);
         }
         this.chromosomes.clear();
         this.chromosomes.addAll(chromosomes);
@@ -115,8 +112,7 @@ public abstract class ListPopulation implements Population {
      */
     public void addChromosomes(final Collection<Chromosome> chromosomeColl) throws NumberIsTooLargeException {
         if (chromosomes.size() + chromosomeColl.size() > populationLimit) {
-            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE,
-                                                chromosomes.size(), populationLimit, false);
+            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE, chromosomes.size(), populationLimit, false);
         }
         this.chromosomes.addAll(chromosomeColl);
     }
@@ -147,8 +143,7 @@ public abstract class ListPopulation implements Population {
      */
     public void addChromosome(final Chromosome chromosome) throws NumberIsTooLargeException {
         if (chromosomes.size() >= populationLimit) {
-            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE,
-                                                chromosomes.size(), populationLimit, false);
+            throw new NumberIsTooLargeException(LocalizedFormats.LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE, chromosomes.size(), populationLimit, false);
         }
         this.chromosomes.add(chromosome);
     }

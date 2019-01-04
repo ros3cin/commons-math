@@ -35,12 +35,17 @@ import org.apache.commons.math3.optim.PointValuePair;
  *
  * @since 3.0
  */
-public class MultiStartMultivariateOptimizer
-    extends BaseMultiStartMultivariateOptimizer<PointValuePair> {
-    /** Underlying optimizer. */
+public class MultiStartMultivariateOptimizer extends BaseMultiStartMultivariateOptimizer<PointValuePair> {
+
+    /**
+     * Underlying optimizer.
+     */
     private final MultivariateOptimizer optimizer;
-    /** Found optima. */
-    private final List<PointValuePair> optima = new ArrayList<PointValuePair>();
+
+    /**
+     * Found optima.
+     */
+    private final List<PointValuePair> optima = new org.apache.commons.collections4.list.TreeList<PointValuePair>();
 
     /**
      * Create a multi-start optimizer from a single-start optimizer.
@@ -54,11 +59,7 @@ public class MultiStartMultivariateOptimizer
      * is {@code null}.
      * @throws NotStrictlyPositiveException if {@code starts < 1}.
      */
-    public MultiStartMultivariateOptimizer(final MultivariateOptimizer optimizer,
-                                           final int starts,
-                                           final RandomVectorGenerator generator)
-        throws NullArgumentException,
-        NotStrictlyPositiveException {
+    public MultiStartMultivariateOptimizer(final MultivariateOptimizer optimizer, final int starts, final RandomVectorGenerator generator) throws NullArgumentException, NotStrictlyPositiveException {
         super(optimizer, starts, generator);
         this.optimizer = optimizer;
     }
@@ -93,8 +94,8 @@ public class MultiStartMultivariateOptimizer
      */
     private Comparator<PointValuePair> getPairComparator() {
         return new Comparator<PointValuePair>() {
-            public int compare(final PointValuePair o1,
-                               final PointValuePair o2) {
+
+            public int compare(final PointValuePair o1, final PointValuePair o2) {
                 if (o1 == null) {
                     return (o2 == null) ? 0 : 1;
                 } else if (o2 == null) {
@@ -102,8 +103,7 @@ public class MultiStartMultivariateOptimizer
                 }
                 final double v1 = o1.getValue();
                 final double v2 = o2.getValue();
-                return (optimizer.getGoalType() == GoalType.MINIMIZE) ?
-                    Double.compare(v1, v2) : Double.compare(v2, v1);
+                return (optimizer.getGoalType() == GoalType.MINIMIZE) ? Double.compare(v1, v2) : Double.compare(v2, v1);
             }
         };
     }

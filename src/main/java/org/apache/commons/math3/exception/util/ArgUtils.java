@@ -22,13 +22,14 @@ import java.util.ArrayList;
 /**
  * Utility class for transforming the list of arguments passed to
  * constructors of exceptions.
- *
  */
 public class ArgUtils {
+
     /**
      * Class contains only static methods.
      */
-    private ArgUtils() {}
+    private ArgUtils() {
+    }
 
     /**
      * Transform a multidimensional array into a one-dimensional list.
@@ -38,7 +39,7 @@ public class ArgUtils {
      * {@code array}.
      */
     public static Object[] flatten(Object[] array) {
-        final List<Object> list = new ArrayList<Object>();
+        final List<Object> list = new org.apache.commons.collections4.list.TreeList<Object>();
         if (array != null) {
             for (Object o : array) {
                 if (o instanceof Object[]) {

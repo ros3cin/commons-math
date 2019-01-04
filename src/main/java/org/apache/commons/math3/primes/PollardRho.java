@@ -18,7 +18,6 @@ package org.apache.commons.math3.primes;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.math3.util.FastMath;
 
 /**
@@ -39,18 +38,15 @@ class PollardRho {
      * @return the list of prime factors of n.
      */
     public static List<Integer> primeFactors(int n) {
-        final List<Integer> factors = new ArrayList<Integer>();
-
+        final List<Integer> factors = new org.apache.commons.collections4.list.TreeList<Integer>();
         n = SmallPrimes.smallTrialDivision(n, factors);
         if (1 == n) {
             return factors;
         }
-
         if (SmallPrimes.millerRabinPrimeTest(n)) {
             factors.add(n);
             return factors;
         }
-
         int divisor = rhoBrent(n);
         factors.add(divisor);
         factors.add(n / divisor);
@@ -85,7 +81,8 @@ class PollardRho {
             do {
                 final int bound = FastMath.min(m, r - k);
                 int q = 1;
-                for (int i = -3; i < bound; i++) { //start at -3 to ensure we enter this loop at least 3 times
+                for (int i = -3; i < bound; i++) {
+                    // start at -3 to ensure we enter this loop at least 3 times
                     final long y2 = ((long) y) * y;
                     y = (int) ((y2 + cst) % n);
                     final long divisor = FastMath.abs(x - y);
@@ -129,25 +126,19 @@ class PollardRho {
      * @param b second number, must be &ge; 0
      * @return gcd(a,b)
      */
-    static int gcdPositive(int a, int b){
-        // both a and b must be positive, it is not checked here
+    static int gcdPositive(int a, int b) {
         // gdc(a,0) = a
         if (a == 0) {
             return b;
         } else if (b == 0) {
             return a;
         }
-
         // make a and b odd, keep in mind the common power of twos
         final int aTwos = Integer.numberOfTrailingZeros(a);
         a >>= aTwos;
         final int bTwos = Integer.numberOfTrailingZeros(b);
         b >>= bTwos;
         final int shift = FastMath.min(aTwos, bTwos);
-
-        // a and b >0
-        // if a > b then gdc(a,b) = gcd(a-b,b)
-        // if a < b then gcd(a,b) = gcd(b-a,a)
         // so next a is the absolute difference and next b is the minimum of current values
         while (a != b) {
             final int delta = a - b;
@@ -157,7 +148,6 @@ class PollardRho {
             // remove any power of two in a as b is guaranteed to be odd throughout all iterations
             a >>= Integer.numberOfTrailingZeros(a);
         }
-
         // gcd(a,a) = a, just "add" the common power of twos
         return a << shift;
     }

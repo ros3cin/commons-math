@@ -19,7 +19,6 @@ package org.apache.commons.math3.distribution.fitting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.MixtureMultivariateNormalDistribution;
 import org.apache.commons.math3.exception.ConvergenceException;
@@ -52,22 +51,27 @@ import org.apache.commons.math3.util.Pair;
  * @since 3.2
  */
 public class MultivariateNormalMixtureExpectationMaximization {
+
     /**
      * Default maximum number of iterations allowed per fitting process.
      */
     private static final int DEFAULT_MAX_ITERATIONS = 1000;
+
     /**
      * Default convergence threshold for fitting.
      */
     private static final double DEFAULT_THRESHOLD = 1E-5;
+
     /**
      * The data to fit.
      */
     private final double[][] data;
+
     /**
      * The model fit against the data.
      */
     private MixtureMultivariateNormalDistribution fittedModel;
+
     /**
      * The log likelihood of the data given the fitted model.
      */
@@ -83,25 +87,18 @@ public class MultivariateNormalMixtureExpectationMaximization {
      * @throws NumberIsTooSmallException if the number of columns in the data is
      *             less than 2
      */
-    public MultivariateNormalMixtureExpectationMaximization(double[][] data)
-        throws NotStrictlyPositiveException,
-               DimensionMismatchException,
-               NumberIsTooSmallException {
+    public MultivariateNormalMixtureExpectationMaximization(double[][] data) throws NotStrictlyPositiveException, DimensionMismatchException, NumberIsTooSmallException {
         if (data.length < 1) {
             throw new NotStrictlyPositiveException(data.length);
         }
-
         this.data = new double[data.length][data[0].length];
-
         for (int i = 0; i < data.length; i++) {
             if (data[i].length != data[0].length) {
                 // Jagged arrays not allowed
-                throw new DimensionMismatchException(data[i].length,
-                                                     data[0].length);
+                throw new DimensionMismatchException(data[i].length, data[0].length);
             }
             if (data[i].length < 2) {
-                throw new NumberIsTooSmallException(LocalizedFormats.NUMBER_TOO_SMALL,
-                                                    data[i].length, 2, true);
+                throw new NumberIsTooSmallException(LocalizedFormats.NUMBER_TOO_SMALL, data[i].length, 2, true);
             }
             this.data[i] = MathArrays.copyOf(data[i], data[i].length);
         }
@@ -129,101 +126,70 @@ public class MultivariateNormalMixtureExpectationMaximization {
      * @throws DimensionMismatchException if initialMixture mean vector and data
      *             number of columns are not equal
      */
-    public void fit(final MixtureMultivariateNormalDistribution initialMixture,
-                    final int maxIterations,
-                    final double threshold)
-            throws SingularMatrixException,
-                   NotStrictlyPositiveException,
-                   DimensionMismatchException {
+    public void fit(final MixtureMultivariateNormalDistribution initialMixture, final int maxIterations, final double threshold) throws SingularMatrixException, NotStrictlyPositiveException, DimensionMismatchException {
         if (maxIterations < 1) {
             throw new NotStrictlyPositiveException(maxIterations);
         }
-
         if (threshold < Double.MIN_VALUE) {
             throw new NotStrictlyPositiveException(threshold);
         }
-
         final int n = data.length;
-
         // Number of data columns. Jagged data already rejected in constructor,
         // so we can assume the lengths of each row are equal.
         final int numCols = data[0].length;
         final int k = initialMixture.getComponents().size();
-
-        final int numMeanColumns
-            = initialMixture.getComponents().get(0).getSecond().getMeans().length;
-
+        final int numMeanColumns = initialMixture.getComponents().get(0).getSecond().getMeans().length;
         if (numMeanColumns != numCols) {
             throw new DimensionMismatchException(numMeanColumns, numCols);
         }
-
         int numIterations = 0;
         double previousLogLikelihood = 0d;
-
         logLikelihood = Double.NEGATIVE_INFINITY;
-
         // Initialize model to fit to initial mixture.
         fittedModel = new MixtureMultivariateNormalDistribution(initialMixture.getComponents());
-
-        while (numIterations++ <= maxIterations &&
-               FastMath.abs(previousLogLikelihood - logLikelihood) > threshold) {
+        while (numIterations++ <= maxIterations && FastMath.abs(previousLogLikelihood - logLikelihood) > threshold) {
             previousLogLikelihood = logLikelihood;
             double sumLogLikelihood = 0d;
-
             // Mixture components
-            final List<Pair<Double, MultivariateNormalDistribution>> components
-                = fittedModel.getComponents();
-
+            final List<Pair<Double, MultivariateNormalDistribution>> components = fittedModel.getComponents();
             // Weight and distribution of each component
             final double[] weights = new double[k];
-
             final MultivariateNormalDistribution[] mvns = new MultivariateNormalDistribution[k];
-
             for (int j = 0; j < k; j++) {
                 weights[j] = components.get(j).getFirst();
                 mvns[j] = components.get(j).getSecond();
             }
-
             // E-step: compute the data dependent parameters of the expectation
             // function.
             // The percentage of row's total density between a row and a
             // component
             final double[][] gamma = new double[n][k];
-
             // Sum of gamma for each component
             final double[] gammaSums = new double[k];
-
             // Sum of gamma times its row for each each component
             final double[][] gammaDataProdSums = new double[k][numCols];
-
             for (int i = 0; i < n; i++) {
                 final double rowDensity = fittedModel.density(data[i]);
                 sumLogLikelihood += FastMath.log(rowDensity);
-
                 for (int j = 0; j < k; j++) {
                     gamma[i][j] = weights[j] * mvns[j].density(data[i]) / rowDensity;
                     gammaSums[j] += gamma[i][j];
-
                     for (int col = 0; col < numCols; col++) {
                         gammaDataProdSums[j][col] += gamma[i][j] * data[i][col];
                     }
                 }
             }
-
             logLikelihood = sumLogLikelihood / n;
-
             // M-step: compute the new parameters based on the expectation
             // function.
             final double[] newWeights = new double[k];
             final double[][] newMeans = new double[k][numCols];
-
             for (int j = 0; j < k; j++) {
                 newWeights[j] = gammaSums[j] / n;
                 for (int col = 0; col < numCols; col++) {
                     newMeans[j][col] = gammaDataProdSums[j][col] / gammaSums[j];
                 }
             }
-
             // Compute new covariance matrices
             final RealMatrix[] newCovMats = new RealMatrix[k];
             for (int j = 0; j < k; j++) {
@@ -231,27 +197,20 @@ public class MultivariateNormalMixtureExpectationMaximization {
             }
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < k; j++) {
-                    final RealMatrix vec
-                        = new Array2DRowRealMatrix(MathArrays.ebeSubtract(data[i], newMeans[j]));
-                    final RealMatrix dataCov
-                        = vec.multiply(vec.transpose()).scalarMultiply(gamma[i][j]);
+                    final RealMatrix vec = new Array2DRowRealMatrix(MathArrays.ebeSubtract(data[i], newMeans[j]));
+                    final RealMatrix dataCov = vec.multiply(vec.transpose()).scalarMultiply(gamma[i][j]);
                     newCovMats[j] = newCovMats[j].add(dataCov);
                 }
             }
-
             // Converting to arrays for use by fitted model
             final double[][][] newCovMatArrays = new double[k][numCols][numCols];
             for (int j = 0; j < k; j++) {
                 newCovMats[j] = newCovMats[j].scalarMultiply(1d / gammaSums[j]);
                 newCovMatArrays[j] = newCovMats[j].getData();
             }
-
             // Update current model
-            fittedModel = new MixtureMultivariateNormalDistribution(newWeights,
-                                                                    newMeans,
-                                                                    newCovMatArrays);
+            fittedModel = new MixtureMultivariateNormalDistribution(newWeights, newMeans, newCovMatArrays);
         }
-
         if (FastMath.abs(previousLogLikelihood - logLikelihood) > threshold) {
             // Did not converge before the maximum number of iterations
             throw new ConvergenceException();
@@ -275,9 +234,7 @@ public class MultivariateNormalMixtureExpectationMaximization {
      * @throws NotStrictlyPositiveException if numComponents is less than one or
      *             threshold is less than Double.MIN_VALUE
      */
-    public void fit(MixtureMultivariateNormalDistribution initialMixture)
-        throws SingularMatrixException,
-               NotStrictlyPositiveException {
+    public void fit(MixtureMultivariateNormalDistribution initialMixture) throws SingularMatrixException, NotStrictlyPositiveException {
         fit(initialMixture, DEFAULT_MAX_ITERATIONS, DEFAULT_THRESHOLD);
     }
 
@@ -299,10 +256,7 @@ public class MultivariateNormalMixtureExpectationMaximization {
      * @throws DimensionMismatchException if rows of data have different numbers
      *             of columns
      */
-    public static MixtureMultivariateNormalDistribution estimate(final double[][] data,
-                                                                 final int numComponents)
-        throws NotStrictlyPositiveException,
-               DimensionMismatchException {
+    public static MixtureMultivariateNormalDistribution estimate(final double[][] data, final int numComponents) throws NotStrictlyPositiveException, DimensionMismatchException {
         if (data.length < 2) {
             throw new NotStrictlyPositiveException(data.length);
         }
@@ -312,41 +266,30 @@ public class MultivariateNormalMixtureExpectationMaximization {
         if (numComponents > data.length) {
             throw new NumberIsTooLargeException(numComponents, data.length, true);
         }
-
         final int numRows = data.length;
         final int numCols = data[0].length;
-
         // sort the data
         final DataRow[] sortedData = new DataRow[numRows];
         for (int i = 0; i < numRows; i++) {
             sortedData[i] = new DataRow(data[i]);
         }
         Arrays.sort(sortedData);
-
         // uniform weight for each bin
         final double weight = 1d / numComponents;
-
         // components of mixture model to be created
-        final List<Pair<Double, MultivariateNormalDistribution>> components =
-                new ArrayList<Pair<Double, MultivariateNormalDistribution>>(numComponents);
-
+        final List<Pair<Double, MultivariateNormalDistribution>> components = new org.eclipse.collections.impl.list.mutable.FastList<Pair<Double, MultivariateNormalDistribution>>(numComponents);
         // create a component based on data in each bin
         for (int binIndex = 0; binIndex < numComponents; binIndex++) {
             // minimum index (inclusive) from sorted data for this bin
             final int minIndex = (binIndex * numRows) / numComponents;
-
             // maximum index (exclusive) from sorted data for this bin
             final int maxIndex = ((binIndex + 1) * numRows) / numComponents;
-
             // number of data records that will be in this bin
             final int numBinRows = maxIndex - minIndex;
-
             // data for this bin
             final double[][] binData = new double[numBinRows][numCols];
-
             // mean of each column for the data in the this bin
             final double[] columnMeans = new double[numCols];
-
             // populate bin and create component
             for (int i = minIndex, iBin = 0; i < maxIndex; i++, iBin++) {
                 for (int j = 0; j < numCols; j++) {
@@ -355,18 +298,12 @@ public class MultivariateNormalMixtureExpectationMaximization {
                     binData[iBin][j] = val;
                 }
             }
-
             MathArrays.scaleInPlace(1d / numBinRows, columnMeans);
-
             // covariance matrix for this bin
-            final double[][] covMat
-                = new Covariance(binData).getCovarianceMatrix().getData();
-            final MultivariateNormalDistribution mvn
-                = new MultivariateNormalDistribution(columnMeans, covMat);
-
+            final double[][] covMat = new Covariance(binData).getCovarianceMatrix().getData();
+            final MultivariateNormalDistribution mvn = new MultivariateNormalDistribution(columnMeans, covMat);
             components.add(new Pair<Double, MultivariateNormalDistribution>(weight, mvn));
         }
-
         return new MixtureMultivariateNormalDistribution(components);
     }
 
@@ -392,9 +329,15 @@ public class MultivariateNormalMixtureExpectationMaximization {
      * Class used for sorting user-supplied data.
      */
     private static class DataRow implements Comparable<DataRow> {
-        /** One data row. */
+
+        /**
+         * One data row.
+         */
         private final double[] row;
-        /** Mean of the data row. */
+
+        /**
+         * Mean of the data row.
+         */
         private Double mean;
 
         /**
@@ -421,27 +364,28 @@ public class MultivariateNormalMixtureExpectationMaximization {
             return mean.compareTo(other.mean);
         }
 
-        /** {@inheritDoc} */
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean equals(Object other) {
-
             if (this == other) {
                 return true;
             }
-
             if (other instanceof DataRow) {
                 return MathArrays.equals(row, ((DataRow) other).row);
             }
-
             return false;
-
         }
 
-        /** {@inheritDoc} */
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public int hashCode() {
             return Arrays.hashCode(row);
         }
+
         /**
          * Get a data row.
          * @return data row array
@@ -451,4 +395,3 @@ public class MultivariateNormalMixtureExpectationMaximization {
         }
     }
 }
-

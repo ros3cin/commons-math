@@ -18,7 +18,6 @@ package org.apache.commons.math3.genetics;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.OutOfRangeException;
@@ -50,7 +49,9 @@ import org.apache.commons.math3.random.RandomGenerator;
  */
 public class UniformCrossover<T> implements CrossoverPolicy {
 
-    /** The mixing ratio. */
+    /**
+     * The mixing ratio.
+     */
     private final double ratio;
 
     /**
@@ -83,9 +84,7 @@ public class UniformCrossover<T> implements CrossoverPolicy {
      * @throws DimensionMismatchException if the length of the two chromosomes is different
      */
     @SuppressWarnings("unchecked")
-    public ChromosomePair crossover(final Chromosome first, final Chromosome second)
-        throws DimensionMismatchException, MathIllegalArgumentException {
-
+    public ChromosomePair crossover(final Chromosome first, final Chromosome second) throws DimensionMismatchException, MathIllegalArgumentException {
         if (!(first instanceof AbstractListChromosome<?> && second instanceof AbstractListChromosome<?>)) {
             throw new MathIllegalArgumentException(LocalizedFormats.INVALID_FIXED_LENGTH_CHROMOSOME);
         }
@@ -100,24 +99,19 @@ public class UniformCrossover<T> implements CrossoverPolicy {
      * @return the pair of new chromosomes that resulted from the crossover
      * @throws DimensionMismatchException if the length of the two chromosomes is different
      */
-    private ChromosomePair mate(final AbstractListChromosome<T> first,
-                                final AbstractListChromosome<T> second) throws DimensionMismatchException {
+    private ChromosomePair mate(final AbstractListChromosome<T> first, final AbstractListChromosome<T> second) throws DimensionMismatchException {
         final int length = first.getLength();
         if (length != second.getLength()) {
             throw new DimensionMismatchException(second.getLength(), length);
         }
-
         // array representations of the parents
         final List<T> parent1Rep = first.getRepresentation();
         final List<T> parent2Rep = second.getRepresentation();
         // and of the children
-        final List<T> child1Rep = new ArrayList<T>(length);
-        final List<T> child2Rep = new ArrayList<T>(length);
-
+        final List<T> child1Rep = new org.eclipse.collections.impl.list.mutable.FastList<T>(length);
+        final List<T> child2Rep = new org.eclipse.collections.impl.list.mutable.FastList<T>(length);
         final RandomGenerator random = GeneticAlgorithm.getRandomGenerator();
-
         for (int index = 0; index < length; index++) {
-
             if (random.nextDouble() < ratio) {
                 // swap the bits -> take other parent
                 child1Rep.add(parent2Rep.get(index));
@@ -127,8 +121,6 @@ public class UniformCrossover<T> implements CrossoverPolicy {
                 child2Rep.add(parent2Rep.get(index));
             }
         }
-
-        return new ChromosomePair(first.newFixedLengthChromosome(child1Rep),
-                                  second.newFixedLengthChromosome(child2Rep));
+        return new ChromosomePair(first.newFixedLengthChromosome(child1Rep), second.newFixedLengthChromosome(child2Rep));
     }
 }
