@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
@@ -59,14 +58,17 @@ import org.apache.commons.math3.util.MathUtils;
  * <p>
  * The values are ordered using the default (natural order), unless a
  * <code>Comparator</code> is supplied in the constructor.</p>
- *
  */
 public class Frequency implements Serializable {
 
-    /** Serializable version identifier */
+    /**
+     * Serializable version identifier
+     */
     private static final long serialVersionUID = -3845586908418844111L;
 
-    /** underlying collection */
+    /**
+     * underlying collection
+     */
     private final TreeMap<Comparable<?>, Long> freqTable;
 
     /**
@@ -81,7 +83,8 @@ public class Frequency implements Serializable {
      *
      * @param comparator Comparator used to order values
      */
-    @SuppressWarnings("unchecked") // TODO is the cast OK?
+    // TODO is the cast OK?
+    @SuppressWarnings("unchecked")
     public Frequency(Comparator<?> comparator) {
         freqTable = new TreeMap<Comparable<?>, Long>((Comparator<? super Comparable<?>>) comparator);
     }
@@ -183,10 +186,8 @@ public class Frequency implements Serializable {
                 freqTable.put(obj, Long.valueOf(count.longValue() + increment));
             }
         } catch (ClassCastException ex) {
-            //TreeMap will throw ClassCastException if v is not comparable
-            throw new MathIllegalArgumentException(
-                  LocalizedFormats.INSTANCES_NOT_COMPARABLE_TO_EXISTING_VALUES,
-                  v.getClass().getName());
+            // TreeMap will throw ClassCastException if v is not comparable
+            throw new MathIllegalArgumentException(LocalizedFormats.INSTANCES_NOT_COMPARABLE_TO_EXISTING_VALUES, v.getClass().getName());
         }
     }
 
@@ -241,7 +242,9 @@ public class Frequency implements Serializable {
         incrementValue(Character.valueOf(v), increment);
     }
 
-    /** Clears the frequency table */
+    /**
+     * Clears the frequency table
+     */
     public void clear() {
         freqTable.clear();
     }
@@ -276,8 +279,7 @@ public class Frequency implements Serializable {
         return freqTable.entrySet().iterator();
     }
 
-    //-------------------------------------------------------------------------
-
+    // -------------------------------------------------------------------------
     /**
      * Returns the sum of all frequencies.
      *
@@ -286,7 +288,7 @@ public class Frequency implements Serializable {
     public long getSumFreq() {
         long result = 0;
         Iterator<Long> iterator = freqTable.values().iterator();
-        while (iterator.hasNext())  {
+        while (iterator.hasNext()) {
             result += iterator.next().longValue();
         }
         return result;
@@ -305,12 +307,13 @@ public class Frequency implements Serializable {
         }
         long result = 0;
         try {
-            Long count =  freqTable.get(v);
+            Long count = freqTable.get(v);
             if (count != null) {
                 result = count.longValue();
             }
-        } catch (ClassCastException ex) { // NOPMD
-            // ignore and return 0 -- ClassCastException will be thrown if value is not comparable
+        } catch (ClassCastException ex) {
+        // NOPMD
+        // ignore and return 0 -- ClassCastException will be thrown if value is not comparable
         }
         return result;
     }
@@ -351,7 +354,7 @@ public class Frequency implements Serializable {
      * @return the number of unique values that have been added to the frequency table.
      * @see #valuesIterator()
      */
-    public int getUniqueCount(){
+    public int getUniqueCount() {
         return freqTable.keySet().size();
     }
 
@@ -407,8 +410,7 @@ public class Frequency implements Serializable {
         return getPct(Character.valueOf(v));
     }
 
-    //-----------------------------------------------------------------------------------------
-
+    // -----------------------------------------------------------------------------------------
     /**
      * Returns the cumulative frequency of values less than or equal to v.
      * <p>
@@ -430,24 +432,23 @@ public class Frequency implements Serializable {
             c = new NaturalComparator();
         }
         long result = 0;
-
         try {
             Long value = freqTable.get(v);
             if (value != null) {
                 result = value.longValue();
             }
         } catch (ClassCastException ex) {
-            return result;   // v is not comparable
+            // v is not comparable
+            return result;
         }
-
         if (c.compare(v, freqTable.firstKey()) < 0) {
-            return 0;  // v is comparable, but less than first value
+            // v is comparable, but less than first value
+            return 0;
         }
-
         if (c.compare(v, freqTable.lastKey()) >= 0) {
-            return getSumFreq();    // v is comparable, but greater than the last value
+            // v is comparable, but greater than the last value
+            return getSumFreq();
         }
-
         Iterator<Comparable<?>> values = valuesIterator();
         while (values.hasNext()) {
             Comparable<?> nextValue = values.next();
@@ -460,7 +461,7 @@ public class Frequency implements Serializable {
         return result;
     }
 
-     /**
+    /**
      * Returns the cumulative frequency of values less than or equal to v.
      * <p>
      * Returns 0 if v is not comparable to the values set.</p>
@@ -472,7 +473,7 @@ public class Frequency implements Serializable {
         return getCumFreq(Long.valueOf(v));
     }
 
-     /**
+    /**
      * Returns the cumulative frequency of values less than or equal to v.
      * <p>
      * Returns 0 if v is not comparable to the values set.</p>
@@ -496,8 +497,7 @@ public class Frequency implements Serializable {
         return getCumFreq(Character.valueOf(v));
     }
 
-    //----------------------------------------------------------------------------------------------
-
+    // ----------------------------------------------------------------------------------------------
     /**
      * Returns the cumulative percentage of values less than or equal to v
      * (as a proportion between 0 and 1).
@@ -563,28 +563,26 @@ public class Frequency implements Serializable {
      * @since 3.3
      */
     public List<Comparable<?>> getMode() {
-        long mostPopular = 0; // frequencies are always positive
-
+        // frequencies are always positive
+        long mostPopular = 0;
         // Get the max count first, so we avoid having to recreate the List each time
-        for(Long l : freqTable.values()) {
+        for (Long l : freqTable.values()) {
             long frequency = l.longValue();
             if (frequency > mostPopular) {
                 mostPopular = frequency;
             }
         }
-
-        List<Comparable<?>> modeList = new ArrayList<Comparable<?>>();
+        List<Comparable<?>> modeList = new org.eclipse.collections.impl.list.mutable.FastList<Comparable<?>>();
         for (Entry<Comparable<?>, Long> ent : freqTable.entrySet()) {
             long frequency = ent.getValue().longValue();
             if (frequency == mostPopular) {
-               modeList.add(ent.getKey());
+                modeList.add(ent.getKey());
             }
         }
         return modeList;
     }
 
-    //----------------------------------------------------------------------------------------------
-
+    // ----------------------------------------------------------------------------------------------
     /**
      * Merge another Frequency object's counts into this instance.
      * This Frequency's counts will be incremented (or set when not already set)
@@ -596,7 +594,6 @@ public class Frequency implements Serializable {
      */
     public void merge(final Frequency other) throws NullArgumentException {
         MathUtils.checkNotNull(other, LocalizedFormats.NULL_NOT_ALLOWED);
-
         final Iterator<Map.Entry<Comparable<?>, Long>> iter = other.entrySetIterator();
         while (iter.hasNext()) {
             final Map.Entry<Comparable<?>, Long> entry = iter.next();
@@ -615,13 +612,10 @@ public class Frequency implements Serializable {
      */
     public void merge(final Collection<Frequency> others) throws NullArgumentException {
         MathUtils.checkNotNull(others, LocalizedFormats.NULL_NOT_ALLOWED);
-
         for (final Frequency freq : others) {
             merge(freq);
         }
     }
-
-    //----------------------------------------------------------------------------------------------
 
     /**
      * A Comparator that compares comparable objects using the
@@ -629,7 +623,9 @@ public class Frequency implements Serializable {
      */
     private static class NaturalComparator<T extends Comparable<T>> implements Comparator<Comparable<T>>, Serializable {
 
-        /** Serializable version identifier */
+        /**
+         * Serializable version identifier
+         */
         private static final long serialVersionUID = -3852193713161395148L;
 
         /**
@@ -645,23 +641,27 @@ public class Frequency implements Serializable {
          * @throws ClassCastException when <i>o1</i> is not a {@link Comparable Comparable},
          *         or when <code>((Comparable)o1).compareTo(o2)</code> does
          */
-        @SuppressWarnings("unchecked") // cast to (T) may throw ClassCastException, see Javadoc
+        // cast to (T) may throw ClassCastException, see Javadoc
+        @SuppressWarnings("unchecked")
         public int compare(Comparable<T> o1, Comparable<T> o2) {
             return o1.compareTo((T) o2);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result +
-                 ((freqTable == null) ? 0 : freqTable.hashCode());
+        result = prime * result + ((freqTable == null) ? 0 : freqTable.hashCode());
         return result;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -680,5 +680,4 @@ public class Frequency implements Serializable {
         }
         return true;
     }
-
 }

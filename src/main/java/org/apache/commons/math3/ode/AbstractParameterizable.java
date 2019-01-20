@@ -19,40 +19,43 @@ package org.apache.commons.math3.ode;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/** This abstract class provides boilerplate parameters list.
- *
- * @since 3.0
- */
-
 public abstract class AbstractParameterizable implements Parameterizable {
 
-   /** List of the parameters names. */
+    /**
+     * List of the parameters names.
+     */
     private final Collection<String> parametersNames;
 
-    /** Simple constructor.
+    /**
+     * Simple constructor.
      * @param names names of the supported parameters
      */
-    protected AbstractParameterizable(final String ... names) {
-        parametersNames = new ArrayList<String>();
+    protected AbstractParameterizable(final String... names) {
+        parametersNames = new org.eclipse.collections.impl.list.mutable.FastList<String>();
         for (final String name : names) {
             parametersNames.add(name);
         }
     }
 
-    /** Simple constructor.
+    /**
+     * Simple constructor.
      * @param names names of the supported parameters
      */
     protected AbstractParameterizable(final Collection<String> names) {
-        parametersNames = new ArrayList<String>();
+        parametersNames = new org.eclipse.collections.impl.list.mutable.FastList<String>();
         parametersNames.addAll(names);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Collection<String> getParametersNames() {
         return parametersNames;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean isSupported(final String name) {
         for (final String supportedName : parametersNames) {
             if (supportedName.equals(name)) {
@@ -62,16 +65,15 @@ public abstract class AbstractParameterizable implements Parameterizable {
         return false;
     }
 
-    /** Check if a parameter is supported and throw an IllegalArgumentException if not.
+    /**
+     * Check if a parameter is supported and throw an IllegalArgumentException if not.
      * @param name name of the parameter to check
      * @exception UnknownParameterException if the parameter is not supported
      * @see #isSupported(String)
      */
-    public void complainIfNotSupported(final String name)
-        throws UnknownParameterException {
+    public void complainIfNotSupported(final String name) throws UnknownParameterException {
         if (!isSupported(name)) {
             throw new UnknownParameterException(name);
         }
     }
-
 }

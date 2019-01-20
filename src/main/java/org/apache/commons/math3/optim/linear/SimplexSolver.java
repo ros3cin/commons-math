@@ -18,7 +18,6 @@ package org.apache.commons.math3.optim.linear;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.optim.OptimizationData;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -51,7 +50,7 @@ import org.apache.commons.math3.util.Precision;
  *   <li>Algorithm convergence: 1e-6</li>
  *   <li>Floating-point comparisons: 10 ulp</li>
  *   <li>Cut-Off value: 1e-10</li>
-  * </ul>
+ * </ul>
  * <p>
  * The cut-off value has been introduced to handle the case of very small pivot elements
  * in the Simplex tableau, as these may lead to numerical instabilities and degeneracy.
@@ -63,19 +62,30 @@ import org.apache.commons.math3.util.Precision;
  * @since 2.0
  */
 public class SimplexSolver extends LinearOptimizer {
-    /** Default amount of error to accept in floating point comparisons (as ulps). */
+
+    /**
+     * Default amount of error to accept in floating point comparisons (as ulps).
+     */
     static final int DEFAULT_ULPS = 10;
 
-    /** Default cut-off value. */
+    /**
+     * Default cut-off value.
+     */
     static final double DEFAULT_CUT_OFF = 1e-10;
 
-    /** Default amount of error to accept for algorithm convergence. */
+    /**
+     * Default amount of error to accept for algorithm convergence.
+     */
     private static final double DEFAULT_EPSILON = 1.0e-6;
 
-    /** Amount of error to accept for algorithm convergence. */
+    /**
+     * Amount of error to accept for algorithm convergence.
+     */
     private final double epsilon;
 
-    /** Amount of error to accept in floating point comparisons (as ulps). */
+    /**
+     * Amount of error to accept in floating point comparisons (as ulps).
+     */
     private final int maxUlps;
 
     /**
@@ -84,7 +94,9 @@ public class SimplexSolver extends LinearOptimizer {
      */
     private final double cutOff;
 
-    /** The pivot selection method to use. */
+    /**
+     * The pivot selection method to use.
+     */
     private PivotSelectionRule pivotSelection;
 
     /**
@@ -148,8 +160,7 @@ public class SimplexSolver extends LinearOptimizer {
      * @throws TooManyIterationsException if the maximal number of iterations is exceeded.
      */
     @Override
-    public PointValuePair optimize(OptimizationData... optData)
-        throws TooManyIterationsException {
+    public PointValuePair optimize(OptimizationData... optData) throws TooManyIterationsException {
         // Set up base class and perform computation.
         return super.optimize(optData);
     }
@@ -170,10 +181,8 @@ public class SimplexSolver extends LinearOptimizer {
     protected void parseOptimizationData(OptimizationData... optData) {
         // Allow base class to register its own data.
         super.parseOptimizationData(optData);
-
         // reset the callback before parsing
         solutionCallback = null;
-
         for (OptimizationData data : optData) {
             if (data instanceof SolutionCallback) {
                 solutionCallback = (SolutionCallback) data;
@@ -197,12 +206,10 @@ public class SimplexSolver extends LinearOptimizer {
         Integer minPos = null;
         for (int i = tableau.getNumObjectiveFunctions(); i < tableau.getWidth() - 1; i++) {
             final double entry = tableau.getEntry(0, i);
-            // check if the entry is strictly smaller than the current minimum
             // do not use a ulp/epsilon check
             if (entry < minValue) {
                 minValue = entry;
                 minPos = i;
-
                 // Bland's rule: chose the entering column with the lowest index
                 if (pivotSelection == PivotSelectionRule.BLAND && isValidPivotColumn(tableau, i)) {
                     break;
@@ -227,7 +234,6 @@ public class SimplexSolver extends LinearOptimizer {
     private boolean isValidPivotColumn(SimplexTableau tableau, int col) {
         for (int i = tableau.getNumObjectiveFunctions(); i < tableau.getHeight(); i++) {
             final double entry = tableau.getEntry(i, col);
-
             // do the same check as in getPivotRow
             if (Precision.compareTo(entry, 0d, cutOff) > 0) {
                 return true;
@@ -245,13 +251,11 @@ public class SimplexSolver extends LinearOptimizer {
      */
     private Integer getPivotRow(SimplexTableau tableau, final int col) {
         // create a list of all the rows that tie for the lowest score in the minimum ratio test
-        List<Integer> minRatioPositions = new ArrayList<Integer>();
+        List<Integer> minRatioPositions = new org.eclipse.collections.impl.list.mutable.FastList<Integer>();
         double minRatio = Double.MAX_VALUE;
         for (int i = tableau.getNumObjectiveFunctions(); i < tableau.getHeight(); i++) {
             final double rhs = tableau.getEntry(i, tableau.getWidth() - 1);
             final double entry = tableau.getEntry(i, col);
-
-            // only consider pivot elements larger than the cutOff threshold
             // selecting others may lead to degeneracy or numerical instabilities
             if (Precision.compareTo(entry, 0d, cutOff) > 0) {
                 final double ratio = FastMath.abs(rhs / entry);
@@ -267,12 +271,9 @@ public class SimplexSolver extends LinearOptimizer {
                 }
             }
         }
-
         if (minRatioPositions.size() == 0) {
             return null;
         } else if (minRatioPositions.size() > 1) {
-            // there's a degeneracy as indicated by a tie in the minimum ratio test
-
             // 1. check if there's an artificial variable that can be forced out of the basis
             if (tableau.getNumArtificialVariables() > 0) {
                 for (Integer row : minRatioPositions) {
@@ -285,13 +286,11 @@ public class SimplexSolver extends LinearOptimizer {
                     }
                 }
             }
-
             // 2. apply Bland's rule to prevent cycling:
-            //    take the row for which the corresponding basic variable has the smallest index
-            //
+            // take the row for which the corresponding basic variable has the smallest index
+            // 
             // see http://www.stanford.edu/class/msande310/blandrule.pdf
             // see http://en.wikipedia.org/wiki/Bland%27s_rule (not equivalent to the above paper)
-
             Integer minRow = null;
             int minIndex = tableau.getWidth();
             for (Integer row : minRatioPositions) {
@@ -313,18 +312,13 @@ public class SimplexSolver extends LinearOptimizer {
      * @throws TooManyIterationsException if the allowed number of iterations has been exhausted.
      * @throws UnboundedSolutionException if the model is found not to have a bounded solution.
      */
-    protected void doIteration(final SimplexTableau tableau)
-        throws TooManyIterationsException,
-               UnboundedSolutionException {
-
+    protected void doIteration(final SimplexTableau tableau) throws TooManyIterationsException, UnboundedSolutionException {
         incrementIterationCount();
-
         Integer pivotCol = getPivotColumn(tableau);
         Integer pivotRow = getPivotRow(tableau, pivotCol);
         if (pivotRow == null) {
             throw new UnboundedSolutionException();
         }
-
         tableau.performRowOperations(pivotCol, pivotRow);
     }
 
@@ -336,59 +330,39 @@ public class SimplexSolver extends LinearOptimizer {
      * @throws UnboundedSolutionException if the model is found not to have a bounded solution.
      * @throws NoFeasibleSolutionException if there is no feasible solution?
      */
-    protected void solvePhase1(final SimplexTableau tableau)
-        throws TooManyIterationsException,
-               UnboundedSolutionException,
-               NoFeasibleSolutionException {
-
+    protected void solvePhase1(final SimplexTableau tableau) throws TooManyIterationsException, UnboundedSolutionException, NoFeasibleSolutionException {
         // make sure we're in Phase 1
         if (tableau.getNumArtificialVariables() == 0) {
             return;
         }
-
         while (!tableau.isOptimal()) {
             doIteration(tableau);
         }
-
         // if W is not zero then we have no feasible solution
         if (!Precision.equals(tableau.getEntry(0, tableau.getRhsOffset()), 0d, epsilon)) {
             throw new NoFeasibleSolutionException();
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public PointValuePair doOptimize()
-        throws TooManyIterationsException,
-               UnboundedSolutionException,
-               NoFeasibleSolutionException {
-
-        // reset the tableau to indicate a non-feasible solution in case
+    public PointValuePair doOptimize() throws TooManyIterationsException, UnboundedSolutionException, NoFeasibleSolutionException {
         // we do not pass phase 1 successfully
         if (solutionCallback != null) {
             solutionCallback.setTableau(null);
         }
-
-        final SimplexTableau tableau =
-            new SimplexTableau(getFunction(),
-                               getConstraints(),
-                               getGoalType(),
-                               isRestrictedToNonNegative(),
-                               epsilon,
-                               maxUlps);
-
+        final SimplexTableau tableau = new SimplexTableau(getFunction(), getConstraints(), getGoalType(), isRestrictedToNonNegative(), epsilon, maxUlps);
         solvePhase1(tableau);
         tableau.dropPhase1Objective();
-
         // after phase 1, we are sure to have a feasible solution
         if (solutionCallback != null) {
             solutionCallback.setTableau(tableau);
         }
-
         while (!tableau.isOptimal()) {
             doIteration(tableau);
         }
-
         // check that the solution respects the nonNegative restriction in case
         // the epsilon/cutOff values are too large for the actual linear problem
         // (e.g. with very small constraint coefficients), the solver might actually

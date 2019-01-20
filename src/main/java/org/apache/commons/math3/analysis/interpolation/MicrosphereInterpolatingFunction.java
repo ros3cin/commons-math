@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -33,25 +32,27 @@ import org.apache.commons.math3.util.FastMath;
 /**
  * Interpolating function that implements the
  * <a href="http://www.dudziak.com/microsphere.php">Microsphere Projection</a>.
- *
  */
-public class MicrosphereInterpolatingFunction
-    implements MultivariateFunction {
+public class MicrosphereInterpolatingFunction implements MultivariateFunction {
+
     /**
      * Space dimension.
      */
     private final int dimension;
+
     /**
      * Internal accounting data for the interpolation algorithm.
      * Each element of the list corresponds to one surface element of
      * the microsphere.
      */
     private final List<MicrosphereSurfaceElement> microsphere;
+
     /**
      * Exponent used in the power law that computes the weights of the
      * sample data.
      */
     private final double brightnessExponent;
+
     /**
      * Sample data.
      */
@@ -62,11 +63,20 @@ public class MicrosphereInterpolatingFunction
      * microsphere projection.
      */
     private static class MicrosphereSurfaceElement {
-        /** Normal vector characterizing a surface element. */
+
+        /**
+         * Normal vector characterizing a surface element.
+         */
         private final RealVector normal;
-        /** Illumination received from the brightest sample. */
+
+        /**
+         * Illumination received from the brightest sample.
+         */
         private double brightestIllumination;
-        /** Brightest sample. */
+
+        /**
+         * Brightest sample.
+         */
         private Map.Entry<RealVector, Double> brightestSample;
 
         /**
@@ -98,8 +108,7 @@ public class MicrosphereInterpolatingFunction
          * @param illuminationFromSample illumination received from sample
          * @param sample current sample illuminating the element
          */
-        void store(final double illuminationFromSample,
-                   final Map.Entry<RealVector, Double> sample) {
+        void store(final double illuminationFromSample, final Map.Entry<RealVector, Double> sample) {
             if (illuminationFromSample > this.brightestIllumination) {
                 this.brightestIllumination = illuminationFromSample;
                 this.brightestSample = sample;
@@ -142,16 +151,8 @@ public class MicrosphereInterpolatingFunction
      * @throws NoDataException if there an array has zero-length.
      * @throws NullArgumentException if an argument is {@code null}.
      */
-    public MicrosphereInterpolatingFunction(double[][] xval,
-                                            double[] yval,
-                                            int brightnessExponent,
-                                            int microsphereElements,
-                                            UnitSphereRandomVectorGenerator rand)
-        throws DimensionMismatchException,
-               NoDataException,
-               NullArgumentException {
-        if (xval == null ||
-            yval == null) {
+    public MicrosphereInterpolatingFunction(double[][] xval, double[] yval, int brightnessExponent, int microsphereElements, UnitSphereRandomVectorGenerator rand) throws DimensionMismatchException, NoDataException, NullArgumentException {
+        if (xval == null || yval == null) {
             throw new NullArgumentException();
         }
         if (xval.length == 0) {
@@ -163,12 +164,10 @@ public class MicrosphereInterpolatingFunction
         if (xval[0] == null) {
             throw new NullArgumentException();
         }
-
         dimension = xval[0].length;
         this.brightnessExponent = brightnessExponent;
-
         // Copy data samples.
-        samples = new HashMap<RealVector, Double>(yval.length);
+        samples = new org.apache.commons.collections4.map.HashedMap<RealVector, Double>(yval.length);
         for (int i = 0; i < xval.length; ++i) {
             final double[] xvalI = xval[i];
             if (xvalI == null) {
@@ -177,12 +176,9 @@ public class MicrosphereInterpolatingFunction
             if (xvalI.length != dimension) {
                 throw new DimensionMismatchException(xvalI.length, dimension);
             }
-
             samples.put(new ArrayRealVector(xvalI), yval[i]);
         }
-
-        microsphere = new ArrayList<MicrosphereSurfaceElement>(microsphereElements);
-        // Generate the microsphere, assuming that a fairly large number of
+        microsphere = new org.eclipse.collections.impl.list.mutable.FastList<MicrosphereSurfaceElement>(microsphereElements);
         // randomly generated normals will represent a sphere.
         for (int i = 0; i < microsphereElements; i++) {
             microsphere.add(new MicrosphereSurfaceElement(rand.nextVector()));
@@ -196,32 +192,24 @@ public class MicrosphereInterpolatingFunction
      */
     public double value(double[] point) throws DimensionMismatchException {
         final RealVector p = new ArrayRealVector(point);
-
         // Reset.
         for (MicrosphereSurfaceElement md : microsphere) {
             md.reset();
         }
-
         // Compute contribution of each sample points to the microsphere elements illumination
         for (Map.Entry<RealVector, Double> sd : samples.entrySet()) {
-
             // Vector between interpolation point and current sample point.
             final RealVector diff = sd.getKey().subtract(p);
             final double diffNorm = diff.getNorm();
-
             if (FastMath.abs(diffNorm) < FastMath.ulp(1d)) {
-                // No need to interpolate, as the interpolation point is
                 // actually (very close to) one of the sampled points.
                 return sd.getValue();
             }
-
             for (MicrosphereSurfaceElement md : microsphere) {
                 final double w = FastMath.pow(diffNorm, -brightnessExponent);
                 md.store(cosAngle(diff, md.normal()) * w, sd);
             }
-
         }
-
         // Interpolation calculation.
         double value = 0;
         double totalWeight = 0;
@@ -233,7 +221,6 @@ public class MicrosphereInterpolatingFunction
                 totalWeight += iV;
             }
         }
-
         return value / totalWeight;
     }
 

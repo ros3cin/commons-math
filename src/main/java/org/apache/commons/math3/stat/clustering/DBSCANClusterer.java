@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.util.MathUtils;
@@ -62,17 +61,28 @@ import org.apache.commons.math3.util.MathUtils;
 @Deprecated
 public class DBSCANClusterer<T extends Clusterable<T>> {
 
-    /** Maximum radius of the neighborhood to be considered. */
-    private final double              eps;
+    /**
+     * Maximum radius of the neighborhood to be considered.
+     */
+    private final double eps;
 
-    /** Minimum number of points needed for a cluster. */
-    private final int                 minPts;
+    /**
+     * Minimum number of points needed for a cluster.
+     */
+    private final int minPts;
 
-    /** Status of a point during the clustering process. */
+    /**
+     * Status of a point during the clustering process.
+     */
     private enum PointStatus {
-        /** The point has is considered to be noise. */
+
+        /**
+         * The point has is considered to be noise.
+         */
         NOISE,
-        /** The point is already part of a cluster. */
+        /**
+         * The point is already part of a cluster.
+         */
         PART_OF_CLUSTER
     }
 
@@ -83,8 +93,7 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
      * @param minPts minimum number of points needed for a cluster
      * @throws NotPositiveException if {@code eps < 0.0} or {@code minPts < 0}
      */
-    public DBSCANClusterer(final double eps, final int minPts)
-        throws NotPositiveException {
+    public DBSCANClusterer(final double eps, final int minPts) throws NotPositiveException {
         if (eps < 0.0d) {
             throw new NotPositiveException(eps);
         }
@@ -125,13 +134,10 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
      * @throws NullArgumentException if the data points are null
      */
     public List<Cluster<T>> cluster(final Collection<T> points) throws NullArgumentException {
-
         // sanity checks
         MathUtils.checkNotNull(points);
-
-        final List<Cluster<T>> clusters = new ArrayList<Cluster<T>>();
-        final Map<Clusterable<T>, PointStatus> visited = new HashMap<Clusterable<T>, PointStatus>();
-
+        final List<Cluster<T>> clusters = new org.eclipse.collections.impl.list.mutable.FastList<Cluster<T>>();
+        final Map<Clusterable<T>, PointStatus> visited = new org.apache.commons.collections4.map.HashedMap<Clusterable<T>, PointStatus>();
         for (final T point : points) {
             if (visited.get(point) != null) {
                 continue;
@@ -145,7 +151,6 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
                 visited.put(point, PointStatus.NOISE);
             }
         }
-
         return clusters;
     }
 
@@ -159,14 +164,9 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
      * @param visited the set of already visited points
      * @return the expanded cluster
      */
-    private Cluster<T> expandCluster(final Cluster<T> cluster,
-                                     final T point,
-                                     final List<T> neighbors,
-                                     final Collection<T> points,
-                                     final Map<Clusterable<T>, PointStatus> visited) {
+    private Cluster<T> expandCluster(final Cluster<T> cluster, final T point, final List<T> neighbors, final Collection<T> points, final Map<Clusterable<T>, PointStatus> visited) {
         cluster.addPoint(point);
         visited.put(point, PointStatus.PART_OF_CLUSTER);
-
         List<T> seeds = new ArrayList<T>(neighbors);
         int index = 0;
         while (index < seeds.size()) {
@@ -179,12 +179,10 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
                     seeds = merge(seeds, currentNeighbors);
                 }
             }
-
             if (pStatus != PointStatus.PART_OF_CLUSTER) {
                 visited.put(current, PointStatus.PART_OF_CLUSTER);
                 cluster.addPoint(current);
             }
-
             index++;
         }
         return cluster;
@@ -198,7 +196,7 @@ public class DBSCANClusterer<T extends Clusterable<T>> {
      * @return the List of neighbors
      */
     private List<T> getNeighbors(final T point, final Collection<T> points) {
-        final List<T> neighbors = new ArrayList<T>();
+        final List<T> neighbors = new org.eclipse.collections.impl.list.mutable.FastList<T>();
         for (final T neighbor : points) {
             if (point != neighbor && neighbor.distanceFrom(point) <= eps) {
                 neighbors.add(neighbor);

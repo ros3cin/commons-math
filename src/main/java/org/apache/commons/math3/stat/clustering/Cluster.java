@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.commons.math3.stat.clustering;
 
 import java.io.Serializable;
@@ -31,13 +30,19 @@ import java.util.List;
 @Deprecated
 public class Cluster<T extends Clusterable<T>> implements Serializable {
 
-    /** Serializable version identifier. */
+    /**
+     * Serializable version identifier.
+     */
     private static final long serialVersionUID = -3442297081515880464L;
 
-    /** The points contained in this cluster. */
+    /**
+     * The points contained in this cluster.
+     */
     private final List<T> points;
 
-    /** Center of the cluster. */
+    /**
+     * Center of the cluster.
+     */
     private final T center;
 
     /**
@@ -46,7 +51,7 @@ public class Cluster<T extends Clusterable<T>> implements Serializable {
      */
     public Cluster(final T center) {
         this.center = center;
-        points = new ArrayList<T>();
+        points = new org.eclipse.collections.impl.list.mutable.FastList<T>();
     }
 
     /**
@@ -72,5 +77,4 @@ public class Cluster<T extends Clusterable<T>> implements Serializable {
     public T getCenter() {
         return center;
     }
-
 }

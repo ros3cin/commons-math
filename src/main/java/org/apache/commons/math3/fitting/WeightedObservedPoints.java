@@ -27,12 +27,16 @@ import java.io.Serializable;
  * @since 3.3
  */
 public class WeightedObservedPoints implements Serializable {
-    /** Serializable version id. */
+
+    /**
+     * Serializable version id.
+     */
     private static final long serialVersionUID = 20130813L;
 
-    /** Observed points. */
-    private final List<WeightedObservedPoint> observations
-        = new ArrayList<WeightedObservedPoint>();
+    /**
+     * Observed points.
+     */
+    private final List<WeightedObservedPoint> observations = new org.eclipse.collections.impl.list.mutable.FastList<WeightedObservedPoint>();
 
     /**
      * Adds a point to the sample.
@@ -97,8 +101,6 @@ public class WeightedObservedPoints implements Serializable {
      * @see #add(WeightedObservedPoint)
      */
     public List<WeightedObservedPoint> toList() {
-        // The copy is necessary to ensure thread-safety because of the
-        // "clear" method (which otherwise would be able to empty the
         // list of points while it is being used by another thread).
         return new ArrayList<WeightedObservedPoint>(observations);
     }

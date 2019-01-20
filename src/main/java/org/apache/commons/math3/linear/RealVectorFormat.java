@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.commons.math3.linear;
 
 import java.text.FieldPosition;
@@ -23,7 +22,6 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.CompositeFormat;
 
@@ -42,25 +40,54 @@ import org.apache.commons.math3.util.CompositeFormat;
  */
 public class RealVectorFormat {
 
-    /** The default prefix: "{". */
+    /**
+     * The default prefix: "{".
+     */
     private static final String DEFAULT_PREFIX = "{";
-    /** The default suffix: "}". */
+
+    /**
+     * The default suffix: "}".
+     */
     private static final String DEFAULT_SUFFIX = "}";
-    /** The default separator: ", ". */
+
+    /**
+     * The default separator: ", ".
+     */
     private static final String DEFAULT_SEPARATOR = "; ";
-    /** Prefix. */
+
+    /**
+     * Prefix.
+     */
     private final String prefix;
-    /** Suffix. */
+
+    /**
+     * Suffix.
+     */
     private final String suffix;
-    /** Separator. */
+
+    /**
+     * Separator.
+     */
     private final String separator;
-    /** Trimmed prefix. */
+
+    /**
+     * Trimmed prefix.
+     */
     private final String trimmedPrefix;
-    /** Trimmed suffix. */
+
+    /**
+     * Trimmed suffix.
+     */
     private final String trimmedSuffix;
-    /** Trimmed separator. */
+
+    /**
+     * Trimmed separator.
+     */
     private final String trimmedSeparator;
-    /** The format used for components. */
+
+    /**
+     * The format used for components.
+     */
     private final NumberFormat format;
 
     /**
@@ -69,8 +96,7 @@ public class RealVectorFormat {
      * "{", "}", and "; " and the default number format for components.</p>
      */
     public RealVectorFormat() {
-        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR,
-             CompositeFormat.getDefaultNumberFormat());
+        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR, CompositeFormat.getDefaultNumberFormat());
     }
 
     /**
@@ -87,10 +113,8 @@ public class RealVectorFormat {
      * @param suffix suffix to use instead of the default "}"
      * @param separator separator to use instead of the default "; "
      */
-    public RealVectorFormat(final String prefix, final String suffix,
-                            final String separator) {
-        this(prefix, suffix, separator,
-             CompositeFormat.getDefaultNumberFormat());
+    public RealVectorFormat(final String prefix, final String suffix, final String separator) {
+        this(prefix, suffix, separator, CompositeFormat.getDefaultNumberFormat());
     }
 
     /**
@@ -101,15 +125,14 @@ public class RealVectorFormat {
      * @param separator separator to use instead of the default "; "
      * @param format the custom format for components.
      */
-    public RealVectorFormat(final String prefix, final String suffix,
-                            final String separator, final NumberFormat format) {
-        this.prefix      = prefix;
-        this.suffix      = suffix;
-        this.separator   = separator;
-        trimmedPrefix    = prefix.trim();
-        trimmedSuffix    = suffix.trim();
+    public RealVectorFormat(final String prefix, final String suffix, final String separator, final NumberFormat format) {
+        this.prefix = prefix;
+        this.suffix = suffix;
+        this.separator = separator;
+        trimmedPrefix = prefix.trim();
+        trimmedSuffix = suffix.trim();
         trimmedSeparator = separator.trim();
-        this.format      = format;
+        this.format = format;
     }
 
     /**
@@ -188,15 +211,11 @@ public class RealVectorFormat {
      *            offsets of the alignment field
      * @return the value passed in as toAppendTo.
      */
-    public StringBuffer format(RealVector vector, StringBuffer toAppendTo,
-                               FieldPosition pos) {
-
+    public StringBuffer format(RealVector vector, StringBuffer toAppendTo, FieldPosition pos) {
         pos.setBeginIndex(0);
         pos.setEndIndex(0);
-
         // format prefix
         toAppendTo.append(prefix);
-
         // format components
         for (int i = 0; i < vector.getDimension(); ++i) {
             if (i > 0) {
@@ -204,10 +223,8 @@ public class RealVectorFormat {
             }
             CompositeFormat.formatDouble(vector.getEntry(i), format, toAppendTo, pos);
         }
-
         // format suffix
         toAppendTo.append(suffix);
-
         return toAppendTo;
     }
 
@@ -223,9 +240,7 @@ public class RealVectorFormat {
         final ParsePosition parsePosition = new ParsePosition(0);
         final ArrayRealVector result = parse(source, parsePosition);
         if (parsePosition.getIndex() == 0) {
-            throw new MathParseException(source,
-                                         parsePosition.getErrorIndex(),
-                                         ArrayRealVector.class);
+            throw new MathParseException(source, parsePosition.getErrorIndex(), ArrayRealVector.class);
         }
         return result;
     }
@@ -239,24 +254,20 @@ public class RealVectorFormat {
      */
     public ArrayRealVector parse(String source, ParsePosition pos) {
         int initialIndex = pos.getIndex();
-
         // parse prefix
         CompositeFormat.parseAndIgnoreWhitespace(source, pos);
         if (!CompositeFormat.parseFixedstring(source, trimmedPrefix, pos)) {
             return null;
         }
-
         // parse components
-        List<Number> components = new ArrayList<Number>();
-        for (boolean loop = true; loop;){
-
+        List<Number> components = new org.eclipse.collections.impl.list.mutable.FastList<Number>();
+        for (boolean loop = true; loop; ) {
             if (!components.isEmpty()) {
                 CompositeFormat.parseAndIgnoreWhitespace(source, pos);
                 if (!CompositeFormat.parseFixedstring(source, trimmedSeparator, pos)) {
                     loop = false;
                 }
             }
-
             if (loop) {
                 CompositeFormat.parseAndIgnoreWhitespace(source, pos);
                 Number component = CompositeFormat.parseNumber(source, format, pos);
@@ -269,15 +280,12 @@ public class RealVectorFormat {
                     return null;
                 }
             }
-
         }
-
         // parse suffix
         CompositeFormat.parseAndIgnoreWhitespace(source, pos);
         if (!CompositeFormat.parseFixedstring(source, trimmedSuffix, pos)) {
             return null;
         }
-
         // build vector
         double[] data = new double[components.size()];
         for (int i = 0; i < data.length; ++i) {
