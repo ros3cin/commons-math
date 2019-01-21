@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.commons.math3.ml.neuralnet.sofm;
 
 import java.util.Collection;
@@ -66,13 +65,25 @@ import org.apache.commons.math3.analysis.function.Gaussian;
  * @since 3.3
  */
 public class KohonenUpdateAction implements UpdateAction {
-    /** Distance function. */
+
+    /**
+     * Distance function.
+     */
     private final DistanceMeasure distance;
-    /** Learning factor update function. */
+
+    /**
+     * Learning factor update function.
+     */
     private final LearningFactorFunction learningFactor;
-    /** Neighbourhood size update function. */
+
+    /**
+     * Neighbourhood size update function.
+     */
     private final NeighbourhoodSizeFunction neighbourhoodSize;
-    /** Number of calls to {@link #update(Network,double[])}. */
+
+    /**
+     * Number of calls to {@link #update(Network,double[])}.
+     */
     private final AtomicLong numberOfCalls = new AtomicLong(-1);
 
     /**
@@ -80,9 +91,7 @@ public class KohonenUpdateAction implements UpdateAction {
      * @param learningFactor Learning factor update function.
      * @param neighbourhoodSize Neighbourhood size update function.
      */
-    public KohonenUpdateAction(DistanceMeasure distance,
-                               LearningFactorFunction learningFactor,
-                               NeighbourhoodSizeFunction neighbourhoodSize) {
+    public KohonenUpdateAction(DistanceMeasure distance, LearningFactorFunction learningFactor, NeighbourhoodSizeFunction neighbourhoodSize) {
         this.distance = distance;
         this.learningFactor = learningFactor;
         this.neighbourhoodSize = neighbourhoodSize;
@@ -91,40 +100,29 @@ public class KohonenUpdateAction implements UpdateAction {
     /**
      * {@inheritDoc}
      */
-    public void update(Network net,
-                       double[] features) {
+    public void update(Network net, double[] features) {
         final long numCalls = numberOfCalls.incrementAndGet();
         final double currentLearning = learningFactor.value(numCalls);
-        final Neuron best = findAndUpdateBestNeuron(net,
-                                                    features,
-                                                    currentLearning);
-
+        final Neuron best = findAndUpdateBestNeuron(net, features, currentLearning);
         final int currentNeighbourhood = neighbourhoodSize.value(numCalls);
         // The farther away the neighbour is from the winning neuron, the
         // smaller the learning rate will become.
-        final Gaussian neighbourhoodDecay
-            = new Gaussian(currentLearning,
-                           0,
-                           1d / currentNeighbourhood);
-
+        final Gaussian neighbourhoodDecay = new Gaussian(currentLearning, 0, 1d / currentNeighbourhood);
         if (currentNeighbourhood > 0) {
             // Initial set of neurons only contains the winning neuron.
-            Collection<Neuron> neighbours = new HashSet<Neuron>();
+            Collection<Neuron> neighbours = new java.util.LinkedHashSet<Neuron>();
             neighbours.add(best);
             // Winning neuron must be excluded from the neighbours.
-            final HashSet<Neuron> exclude = new HashSet<Neuron>();
+            final java.util.Set<Neuron> exclude = new java.util.LinkedHashSet<Neuron>();
             exclude.add(best);
-
             int radius = 1;
             do {
                 // Retrieve immediate neighbours of the current set of neurons.
                 neighbours = net.getNeighbours(neighbours, exclude);
-
                 // Update all the neighbours.
                 for (Neuron n : neighbours) {
                     updateNeighbouringNeuron(n, features, neighbourhoodDecay.value(radius));
                 }
-
                 // Add the neighbours to the exclude list so that they will
                 // not be update more than once per training step.
                 exclude.addAll(neighbours);
@@ -150,14 +148,10 @@ public class KohonenUpdateAction implements UpdateAction {
      * @param features Training data.
      * @param learningRate Learning factor.
      */
-    private void updateNeighbouringNeuron(Neuron n,
-                                          double[] features,
-                                          double learningRate) {
+    private void updateNeighbouringNeuron(Neuron n, double[] features, double learningRate) {
         while (true) {
             final double[] expect = n.getFeatures();
-            final double[] update = computeFeatures(expect,
-                                                    features,
-                                                    learningRate);
+            final double[] update = computeFeatures(expect, features, learningRate);
             if (n.compareAndSetFeatures(expect, update)) {
                 break;
             }
@@ -173,23 +167,17 @@ public class KohonenUpdateAction implements UpdateAction {
      * @param learningRate Current learning factor.
      * @return the winning neuron.
      */
-    private Neuron findAndUpdateBestNeuron(Network net,
-                                           double[] features,
-                                           double learningRate) {
+    private Neuron findAndUpdateBestNeuron(Network net, double[] features, double learningRate) {
         while (true) {
             final Neuron best = MapUtils.findBest(features, net, distance);
-
             final double[] expect = best.getFeatures();
-            final double[] update = computeFeatures(expect,
-                                                    features,
-                                                    learningRate);
+            final double[] update = computeFeatures(expect, features, learningRate);
             if (best.compareAndSetFeatures(expect, update)) {
                 return best;
             }
-
-            // If another thread modified the state of the winning neuron,
-            // it may not be the best match anymore for the given training
-            // sample: Hence, the winner search is performed again.
+        // If another thread modified the state of the winning neuron,
+        // it may not be the best match anymore for the given training
+        // sample: Hence, the winner search is performed again.
         }
     }
 
@@ -201,9 +189,7 @@ public class KohonenUpdateAction implements UpdateAction {
      * @param learningRate Learning factor.
      * @return the new values for the features.
      */
-    private double[] computeFeatures(double[] current,
-                                     double[] sample,
-                                     double learningRate) {
+    private double[] computeFeatures(double[] current, double[] sample, double learningRate) {
         final ArrayRealVector c = new ArrayRealVector(current, false);
         final ArrayRealVector s = new ArrayRealVector(sample, false);
         // c + learningRate * (s - c)

@@ -18,7 +18,6 @@ package org.apache.commons.math3.analysis.interpolation;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.math3.FieldElement;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.MathArithmeticException;
@@ -29,7 +28,8 @@ import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.math3.util.MathArrays;
 import org.apache.commons.math3.util.MathUtils;
 
-/** Polynomial interpolator using both sample values and sample derivatives.
+/**
+ * Polynomial interpolator using both sample values and sample derivatives.
  * <p>
  * The interpolation polynomials match all sample points, including both values
  * and provided derivatives. There is one polynomial for each component of
@@ -49,24 +49,32 @@ import org.apache.commons.math3.util.MathUtils;
  */
 public class FieldHermiteInterpolator<T extends FieldElement<T>> {
 
-    /** Sample abscissae. */
+    /**
+     * Sample abscissae.
+     */
     private final List<T> abscissae;
 
-    /** Top diagonal of the divided differences array. */
+    /**
+     * Top diagonal of the divided differences array.
+     */
     private final List<T[]> topDiagonal;
 
-    /** Bottom diagonal of the divided differences array. */
+    /**
+     * Bottom diagonal of the divided differences array.
+     */
     private final List<T[]> bottomDiagonal;
 
-    /** Create an empty interpolator.
+    /**
+     * Create an empty interpolator.
      */
     public FieldHermiteInterpolator() {
-        this.abscissae      = new ArrayList<T>();
-        this.topDiagonal    = new ArrayList<T[]>();
-        this.bottomDiagonal = new ArrayList<T[]>();
+        this.abscissae = new ArrayList<T>();
+        this.topDiagonal = new ArrayList<T[]>();
+        this.bottomDiagonal = new org.apache.commons.collections4.list.TreeList<T[]>();
     }
 
-    /** Add a sample point.
+    /**
+     * Add a sample point.
      * <p>
      * This method must be called once for each sample point. It is allowed to
      * mix some calls with values only with calls with values and first
@@ -87,14 +95,10 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
      * @throws DimensionMismatchException if derivative structures are inconsistent
      * @throws NullArgumentException if x is null
      */
-    public void addSamplePoint(final T x, final T[] ... value)
-        throws ZeroException, MathArithmeticException,
-               DimensionMismatchException, NullArgumentException {
-
+    public void addSamplePoint(final T x, final T[]... value) throws ZeroException, MathArithmeticException, DimensionMismatchException, NullArgumentException {
         MathUtils.checkNotNull(x);
         T factorial = x.getField().getOne();
         for (int i = 0; i < value.length; ++i) {
-
             final T[] y = value[i].clone();
             if (i > 1) {
                 factorial = factorial.multiply(i);
@@ -103,7 +107,6 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
                     y[j] = y[j].multiply(inv);
                 }
             }
-
             // update the bottom diagonal of the divided differences array
             final int n = abscissae.size();
             bottomDiagonal.add(n - i, y);
@@ -119,31 +122,26 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
                 }
                 bottom0 = bottom1;
             }
-
             // update the top diagonal of the divided differences array
             topDiagonal.add(bottom0.clone());
-
             // update the abscissae array
             abscissae.add(x);
-
         }
-
     }
 
-    /** Interpolate value at a specified abscissa.
+    /**
+     * Interpolate value at a specified abscissa.
      * @param x interpolation abscissa
      * @return interpolated value
      * @exception NoDataException if sample is empty
      * @throws NullArgumentException if x is null
      */
     public T[] value(T x) throws NoDataException, NullArgumentException {
-
         // safety check
         MathUtils.checkNotNull(x);
         if (abscissae.isEmpty()) {
             throw new NoDataException(LocalizedFormats.EMPTY_INTERPOLATION_SAMPLE);
         }
-
         final T[] value = MathArrays.buildArray(x.getField(), topDiagonal.get(0).length);
         T valueCoeff = x.getField().getOne();
         for (int i = 0; i < topDiagonal.size(); ++i) {
@@ -154,12 +152,11 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
             final T deltaX = x.subtract(abscissae.get(i));
             valueCoeff = valueCoeff.multiply(deltaX);
         }
-
         return value;
-
     }
 
-    /** Interpolate value and first derivatives at a specified abscissa.
+    /**
+     * Interpolate value and first derivatives at a specified abscissa.
      * @param x interpolation abscissa
      * @param order maximum derivation order
      * @return interpolated value and derivatives (value in row 0,
@@ -168,23 +165,19 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
      * @throws NullArgumentException if x is null
      */
     public T[][] derivatives(T x, int order) throws NoDataException, NullArgumentException {
-
         // safety check
         MathUtils.checkNotNull(x);
         if (abscissae.isEmpty()) {
             throw new NoDataException(LocalizedFormats.EMPTY_INTERPOLATION_SAMPLE);
         }
-
         final T zero = x.getField().getZero();
-        final T one  = x.getField().getOne();
+        final T one = x.getField().getOne();
         final T[] tj = MathArrays.buildArray(x.getField(), order + 1);
         tj[0] = zero;
         for (int i = 0; i < order; ++i) {
             tj[i + 1] = tj[i].add(one);
         }
-
-        final T[][] derivatives =
-                MathArrays.buildArray(x.getField(), order + 1, topDiagonal.get(0).length);
+        final T[][] derivatives = MathArrays.buildArray(x.getField(), order + 1, topDiagonal.get(0).length);
         final T[] valueCoeff = MathArrays.buildArray(x.getField(), order + 1);
         valueCoeff[0] = x.getField().getOne();
         for (int i = 0; i < topDiagonal.size(); ++i) {
@@ -192,8 +185,7 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
             final T deltaX = x.subtract(abscissae.get(i));
             for (int j = order; j >= 0; --j) {
                 for (int k = 0; k < derivatives[j].length; ++k) {
-                    derivatives[j][k] =
-                            derivatives[j][k].add(dividedDifference[k].multiply(valueCoeff[j]));
+                    derivatives[j][k] = derivatives[j][k].add(dividedDifference[k].multiply(valueCoeff[j]));
                 }
                 valueCoeff[j] = valueCoeff[j].multiply(deltaX);
                 if (j > 0) {
@@ -201,9 +193,6 @@ public class FieldHermiteInterpolator<T extends FieldElement<T>> {
                 }
             }
         }
-
         return derivatives;
-
     }
-
 }
